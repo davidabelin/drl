@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ app_title }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Baskervville:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <script>
+      window.__AIX_HUB_URL__ = {{ aix_hub_url|tojson }};
+    </script>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="bg-orb bg-orb-a"></div>
+    <div class="bg-orb bg-orb-b"></div>
+    <header class="site-header">
+      <a class="brand" href="{{ url_for('main.home') }}">DRL Lab</a>
+      <nav class="site-nav">
+        <a href="{{ url_for('main.home') }}">Overview</a>
+        <a href="{{ url_for('main.inventory_page') }}">Inventory</a>
+        {% for section in catalog_sections %}
+        <a href="{{ url_for('main.section_page', slug=section.slug) }}">{{ section.nav_label }}</a>
+        {% endfor %}
+        <a href="{{ aix_hub_url }}">Back to AIX Hub</a>
+      </nav>
+    </header>
+    <main class="page">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

@@ -1,0 +1,765 @@
+C:\USERS\DAVID\DOCUMENTS\LOCAL_PYTHON\DRL
+|   drl_tree.txt
+|   
++---resources
+|       async_A2C.pdf
+|       continuous_DQL.pdf
+|       continuous_DRL.pdf
+|       DeepQNetworks_Nature.pdf
+|       GAE.pdf
+|       guided_policy_search.pdf
+|       ppo_algorithms.pdf
+|       prioritized_replay.pdf
+|       QProp.pdf
+|       trust_region_policy_optimization.pdf
+|       
+\---source-material
+    |   CONTENTS.md
+    |   drl_utils.py
+    |   LICENSE
+    |   README.md
+    |   
+    +---classwork
+    |   |   Actor-Critic+Methods+Subtitles.zip
+    |   |   cheatsheet.pdf
+    |   |   Introduction+to+Multi-Agent+RL+Subtitles.zip
+    |   |   LICENSE.txt
+    |   |   Navigation+Subtitles.zip
+    |   |   README.md
+    |   |   
+    |   +---ContinuousControl_Transcripts
+    |   |       1 - M3L501 Introduction HS 1 V1 - lang_en.srt
+    |   |       10 - M3 L5 10 A3C Asynchronous Advantage ActorCritic Offpolicy Vs Onpolicy V1 - lang_en.srt
+    |   |       11 - M3 L5 11 A2C Advantage ActorCritic V2 - lang_en.srt
+    |   |       12 - A2c Export V1 - lang_en.srt
+    |   |       13 - M3 L5 13 GAE Generalized Advantage Estimation V2 - lang_en.srt
+    |   |       14 - M3 L5 14 DDPG Deep Deterministic Policy Gradient Continuous Actionspace V1 - lang_en.srt
+    |   |       15 - M3 L5 15 DDPG Deep Deterministic Policy Gradient Soft Updates V1 - lang_en.srt
+    |   |       16 - DDPG Export V1 - lang_en.srt
+    |   |       17 - M3L517 Summary HS 1 V1 - lang_en.srt
+    |   |       2 - M3 L5 02 Motivation V1 - lang_en.srt
+    |   |       3 - M3 L5 03 Bias And Variance V2 - lang_en.srt
+    |   |       4 - M3 L5 04 Two Ways For Estimating Expected Returns V3 - lang_en.srt
+    |   |       5 - M3 L5 05 Baselines And Critics V1 - lang_en.srt
+    |   |       6 - M3 L5 06 Policybased Valuebased And ActorCritic V1 - lang_en.srt
+    |   |       7 - M3 L5 07 A Basic ActorCritic Agent V2 - lang_en.srt
+    |   |       8 - M3 L5 08 A3C Asynchronous Advantage ActorCritic V2 - lang_en.srt
+    |   |       9 - M3 L5 09 A3C Asynchronous Advantage ActorCritic Parallel Training V2 - lang_en.srt
+    |   |       
+    |   \---project-reports
+    |       |   Banana_Windows_x86_64.zip
+    |       |   README.md
+    |       |   
+    |       +---p1_navigation
+    |       |       dqn_agent.py
+    |       |       dqn_solution.ipynb
+    |       |       model.py
+    |       |       Navigation.ipynb
+    |       |       Navigation_OG.ipynb
+    |       |       Navigation_Pixels.ipynb
+    |       |       P1 Report.ipynb
+    |       |       p1_project.zip
+    |       |       python_env.zip
+    |       |       
+    |       +---p2_continuous-control
+    |       |   |   Continuous_Control.ipynb
+    |       |   |   Continuous_Control_OG.ipynb
+    |       |   |   Continuous_Control_X.ipynb
+    |       |   |   README.md
+    |       |   |   requirements.txt
+    |       |   |   Tile_Coding_Acrobat.ipynb
+    |       |   |   unity-environment.log
+    |       |   |   
+    |       |   +---data
+    |       |   |       actions.csv
+    |       |   |       dones.csv
+    |       |   |       next_st.csv
+    |       |   |       rewards.csv
+    |       |   |       states.csv
+    |       |   |       steps.csv
+    |       |   |       
+    |       |   +---ddpg
+    |       |   |   |   ddpg_agent.py
+    |       |   |   |   ddpg_model.py
+    |       |   |   |   ddpg_train.py
+    |       |   |   |   Reacher.ipynb
+    |       |   |   |   unity-environment.log
+    |       |   |   |   
+    |       |   |   \---clutter
+    |       |   |           CC20_DDPG.ipynb
+    |       |   |           ddpg_agent_bip.py
+    |       |   |           ddpg_agent_original.py
+    |       |   |           ddpg_lost_agent.py
+    |       |   |           ddpg_lost_model.py
+    |       |   |           
+    |       |   +---ddpg_single_agent
+    |       |   |       ddpg_agent.py
+    |       |   |       ddpg_model.py
+    |       |   |       ReacherOne.ipynb
+    |       |   |       unity-environment.log
+    |       |   |       
+    |       |   +---docs
+    |       |   |   |   continuous_DQL.pdf
+    |       |   |   |   reacher_env.html
+    |       |   |   |   
+    |       |   |   \---reacher_env_files
+    |       |   |           colorschememapping.xml
+    |       |   |           filelist.xml
+    |       |   |           image001.gif
+    |       |   |           image002.png
+    |       |   |           reacher.gif
+    |       |   |           themedata.thmx
+    |       |   |           unknown.png
+    |       |   |           
+    |       |   +---p2_submit
+    |       |   +---parallelEnv
+    |       |   |   |   CC_PE.ipynb
+    |       |   |   |   parallelEnv.jupyterlab-workspace
+    |       |   |   |   parallelEnv.py
+    |       |   |   |   unity-environment.log
+    |       |   |   |   utils.py
+    |       |   |   |   
+    |       |   |   +---.ipynb_checkpoints
+    |       |   |   |       CC_PE-checkpoint.ipynb
+    |       |   |   |       parallelEnv-checkpoint.py
+    |       |   |   |       utils-checkpoint.py
+    |       |   |   |       
+    |       |   |   \---__pycache__
+    |       |   |           parallelEnv.cpython-36.pyc
+    |       |   |           parallelEnv.cpython-39.pyc
+    |       |   |           utils.cpython-36.pyc
+    |       |   |           utils.cpython-39.pyc
+    |       |   |           
+    |       |   +---ppo_reinforce
+    |       |   |   |   CC-RNFRC.ipynb
+    |       |   |   |   CC1_DDPG.ipynb
+    |       |   |   |   CC20_PPO_win.ipynb
+    |       |   |   |   parallelEnv.py
+    |       |   |   |   parallelEnv_v.py
+    |       |   |   |   pong-PPO.ipynb
+    |       |   |   |   pong_utils.py
+    |       |   |   |   pong_utils_s.py
+    |       |   |   |   PPO.ipynb
+    |       |   |   |   reacher_PPO.ipynb
+    |       |   |   |   
+    |       |   |   +---.ipynb_checkpoints
+    |       |   |   |       CC-RNFRC-checkpoint.ipynb
+    |       |   |   |       CC20_PPO_win-checkpoint.ipynb
+    |       |   |   |       pong-PPO-checkpoint.ipynb
+    |       |   |   |       pong_utils-checkpoint.py
+    |       |   |   |       PPO-checkpoint.ipynb
+    |       |   |   |       reacher_PPO-checkpoint.ipynb
+    |       |   |   |       
+    |       |   |   \---__pycache__
+    |       |   |           parallelEnv.cpython-310.pyc
+    |       |   |           pong_utils.cpython-310.pyc
+    |       |   |           
+    |       |   +---python
+    |       |   |   |   alt_requirements.txt
+    |       |   |   |   Basics.ipynb
+    |       |   |   |   benchmark_CC.pdf
+    |       |   |   |   Colab_Unity_1_Run.ipynb
+    |       |   |   |   learn.py
+    |       |   |   |   README.md
+    |       |   |   |   requirements.txt
+    |       |   |   |   setup.py
+    |       |   |   |   trainer_config.yaml
+    |       |   |   |   
+    |       |   |   +---.ipynb_checkpoints
+    |       |   |   |       Basics-checkpoint.ipynb
+    |       |   |   |       Colab_Unity_1_Run-checkpoint.ipynb
+    |       |   |   |       requirements-checkpoint.txt
+    |       |   |   |       
+    |       |   |   +---.vs
+    |       |   |   |   |   ProjectSettings.json
+    |       |   |   |   |   slnx.sqlite
+    |       |   |   |   |   VSWorkspaceState.json
+    |       |   |   |   |   
+    |       |   |   |   \---python
+    |       |   |   |       +---FileContentIndex
+    |       |   |   |       |   |   1840a5e5-6f21-4cea-9126-7cb4e51d814a.vsidx
+    |       |   |   |       |   |   read.lock
+    |       |   |   |       |   |   
+    |       |   |   |       |   \---merges
+    |       |   |   |       \---v17
+    |       |   |   +---build
+    |       |   |   |   +---bdist.win-amd64
+    |       |   |   |   \---lib
+    |       |   |   |       +---communicator_objects
+    |       |   |   |       |       agent_action_proto_pb2.py
+    |       |   |   |       |       agent_info_proto_pb2.py
+    |       |   |   |       |       brain_parameters_proto_pb2.py
+    |       |   |   |       |       brain_type_proto_pb2.py
+    |       |   |   |       |       command_proto_pb2.py
+    |       |   |   |       |       engine_configuration_proto_pb2.py
+    |       |   |   |       |       environment_parameters_proto_pb2.py
+    |       |   |   |       |       header_pb2.py
+    |       |   |   |       |       resolution_proto_pb2.py
+    |       |   |   |       |       space_type_proto_pb2.py
+    |       |   |   |       |       unity_input_pb2.py
+    |       |   |   |       |       unity_message_pb2.py
+    |       |   |   |       |       unity_output_pb2.py
+    |       |   |   |       |       unity_rl_initialization_input_pb2.py
+    |       |   |   |       |       unity_rl_initialization_output_pb2.py
+    |       |   |   |       |       unity_rl_input_pb2.py
+    |       |   |   |       |       unity_rl_output_pb2.py
+    |       |   |   |       |       unity_to_external_pb2.py
+    |       |   |   |       |       unity_to_external_pb2_grpc.py
+    |       |   |   |       |       __init__.py
+    |       |   |   |       |       
+    |       |   |   |       +---p2_utils
+    |       |   |   |       |       parallelEnv.py
+    |       |   |   |       |       ppo_utils.py
+    |       |   |   |       |       __init__.py
+    |       |   |   |       |       
+    |       |   |   |       +---tests
+    |       |   |   |       |       mock_communicator.py
+    |       |   |   |       |       test_bc.py
+    |       |   |   |       |       test_ppo.py
+    |       |   |   |       |       test_unityagents.py
+    |       |   |   |       |       test_unitytrainers.py
+    |       |   |   |       |       __init__.py
+    |       |   |   |       |       
+    |       |   |   |       +---unityagents
+    |       |   |   |       |       brain.py
+    |       |   |   |       |       communicator.py
+    |       |   |   |       |       curriculum.py
+    |       |   |   |       |       environment.py
+    |       |   |   |       |       exception.py
+    |       |   |   |       |       rpc_communicator.py
+    |       |   |   |       |       socket_communicator.py
+    |       |   |   |       |       __init__.py
+    |       |   |   |       |       
+    |       |   |   |       \---unitytrainers
+    |       |   |   |           |   buffer.py
+    |       |   |   |           |   models.py
+    |       |   |   |           |   trainer.py
+    |       |   |   |           |   trainer_controller.py
+    |       |   |   |           |   __init__.py
+    |       |   |   |           |   
+    |       |   |   |           +---bc
+    |       |   |   |           |       models.py
+    |       |   |   |           |       trainer.py
+    |       |   |   |           |       __init__.py
+    |       |   |   |           |       
+    |       |   |   |           \---ppo
+    |       |   |   |                   models.py
+    |       |   |   |                   trainer.py
+    |       |   |   |                   __init__.py
+    |       |   |   |                   
+    |       |   |   +---communicator_objects
+    |       |   |   |   |   agent_action_proto_pb2.py
+    |       |   |   |   |   agent_info_proto_pb2.py
+    |       |   |   |   |   brain_parameters_proto_pb2.py
+    |       |   |   |   |   brain_type_proto_pb2.py
+    |       |   |   |   |   command_proto_pb2.py
+    |       |   |   |   |   engine_configuration_proto_pb2.py
+    |       |   |   |   |   environment_parameters_proto_pb2.py
+    |       |   |   |   |   header_pb2.py
+    |       |   |   |   |   resolution_proto_pb2.py
+    |       |   |   |   |   space_type_proto_pb2.py
+    |       |   |   |   |   unity_input_pb2.py
+    |       |   |   |   |   unity_message_pb2.py
+    |       |   |   |   |   unity_output_pb2.py
+    |       |   |   |   |   unity_rl_initialization_input_pb2.py
+    |       |   |   |   |   unity_rl_initialization_output_pb2.py
+    |       |   |   |   |   unity_rl_input_pb2.py
+    |       |   |   |   |   unity_rl_output_pb2.py
+    |       |   |   |   |   unity_to_external_pb2.py
+    |       |   |   |   |   unity_to_external_pb2_grpc.py
+    |       |   |   |   |   __init__.py
+    |       |   |   |   |   
+    |       |   |   |   \---__pycache__
+    |       |   |   |           agent_action_proto_pb2.cpython-36.pyc
+    |       |   |   |           agent_info_proto_pb2.cpython-36.pyc
+    |       |   |   |           brain_parameters_proto_pb2.cpython-36.pyc
+    |       |   |   |           brain_type_proto_pb2.cpython-36.pyc
+    |       |   |   |           command_proto_pb2.cpython-36.pyc
+    |       |   |   |           engine_configuration_proto_pb2.cpython-36.pyc
+    |       |   |   |           environment_parameters_proto_pb2.cpython-36.pyc
+    |       |   |   |           header_pb2.cpython-36.pyc
+    |       |   |   |           resolution_proto_pb2.cpython-36.pyc
+    |       |   |   |           space_type_proto_pb2.cpython-36.pyc
+    |       |   |   |           unity_input_pb2.cpython-36.pyc
+    |       |   |   |           unity_message_pb2.cpython-36.pyc
+    |       |   |   |           unity_output_pb2.cpython-36.pyc
+    |       |   |   |           unity_rl_initialization_input_pb2.cpython-36.pyc
+    |       |   |   |           unity_rl_initialization_output_pb2.cpython-36.pyc
+    |       |   |   |           unity_rl_input_pb2.cpython-36.pyc
+    |       |   |   |           unity_rl_output_pb2.cpython-36.pyc
+    |       |   |   |           unity_to_external_pb2.cpython-36.pyc
+    |       |   |   |           unity_to_external_pb2_grpc.cpython-36.pyc
+    |       |   |   |           __init__.cpython-36.pyc
+    |       |   |   |           
+    |       |   |   +---curricula
+    |       |   |   |       push.json
+    |       |   |   |       test.json
+    |       |   |   |       wall.json
+    |       |   |   |       
+    |       |   |   +---p2_utils
+    |       |   |   |       parallelEnv.py
+    |       |   |   |       ppo_utils.py
+    |       |   |   |       __init__.py
+    |       |   |   |       
+    |       |   |   +---tests
+    |       |   |   |       mock_communicator.py
+    |       |   |   |       test_bc.py
+    |       |   |   |       test_ppo.py
+    |       |   |   |       test_unityagents.py
+    |       |   |   |       test_unitytrainers.py
+    |       |   |   |       __init__.py
+    |       |   |   |       
+    |       |   |   +---unityagents
+    |       |   |   |   |   brain.py
+    |       |   |   |   |   communicator.py
+    |       |   |   |   |   curriculum.py
+    |       |   |   |   |   environment.py
+    |       |   |   |   |   exception.py
+    |       |   |   |   |   rpc_communicator.py
+    |       |   |   |   |   socket_communicator.py
+    |       |   |   |   |   __init__.py
+    |       |   |   |   |   
+    |       |   |   |   \---__pycache__
+    |       |   |   |           brain.cpython-36.pyc
+    |       |   |   |           communicator.cpython-36.pyc
+    |       |   |   |           curriculum.cpython-36.pyc
+    |       |   |   |           environment.cpython-36.pyc
+    |       |   |   |           exception.cpython-36.pyc
+    |       |   |   |           rpc_communicator.cpython-36.pyc
+    |       |   |   |           socket_communicator.cpython-36.pyc
+    |       |   |   |           __init__.cpython-36.pyc
+    |       |   |   |           
+    |       |   |   +---unityagents.egg-info
+    |       |   |   |       dependency_links.txt
+    |       |   |   |       PKG-INFO
+    |       |   |   |       requires.txt
+    |       |   |   |       SOURCES.txt
+    |       |   |   |       top_level.txt
+    |       |   |   |       
+    |       |   |   \---unitytrainers
+    |       |   |       |   buffer.py
+    |       |   |       |   models.py
+    |       |   |       |   trainer.py
+    |       |   |       |   trainer_controller.py
+    |       |   |       |   __init__.py
+    |       |   |       |   
+    |       |   |       +---bc
+    |       |   |       |       models.py
+    |       |   |       |       trainer.py
+    |       |   |       |       __init__.py
+    |       |   |       |       
+    |       |   |       \---ppo
+    |       |   |               models.py
+    |       |   |               trainer.py
+    |       |   |               __init__.py
+    |       |   |               
+    |       |   \---zips
+    |       |           python_zip_p2.zip
+    |       |           reacher_one_windows.zip
+    |       |           reacher_twenty_windows.zip
+    |       |           zipdir.py
+    |       |           
+    |       +---p3_collaborate-compete
+    |       |       README.md
+    |       |       Soccer.ipynb
+    |       |       Tennis.ipynb
+    |       |       
+    |       \---Value-based-methods
+    |           |   .DS_Store
+    |           |   LICENSE.md
+    |           |   README.md
+    |           |   
+    |           +---cheatsheet
+    |           |       cheatsheet.pdf
+    |           |       cheatsheet.tex
+    |           |       LICENSE.txt
+    |           |       README.md
+    |           |       udacity-logo.png
+    |           |       
+    |           +---dqn
+    |           |   |   README.md
+    |           |   |   
+    |           |   +---exercise
+    |           |   |       Deep_Q_Network.ipynb
+    |           |   |       dqn_agent.py
+    |           |   |       model.py
+    |           |   |       
+    |           |   \---solution
+    |           |           Deep_Q_Network_Solution.ipynb
+    |           |           dqn_agent.py
+    |           |           model.py
+    |           |           
+    |           \---python
+    |               |   Basics.ipynb
+    |               |   learn.py
+    |               |   README.md
+    |               |   requirements.txt
+    |               |   setup.py
+    |               |   trainer_config.yaml
+    |               |   
+    |               +---communicator_objects
+    |               |       agent_action_proto_pb2.py
+    |               |       agent_info_proto_pb2.py
+    |               |       brain_parameters_proto_pb2.py
+    |               |       brain_type_proto_pb2.py
+    |               |       command_proto_pb2.py
+    |               |       engine_configuration_proto_pb2.py
+    |               |       environment_parameters_proto_pb2.py
+    |               |       header_pb2.py
+    |               |       resolution_proto_pb2.py
+    |               |       space_type_proto_pb2.py
+    |               |       unity_input_pb2.py
+    |               |       unity_message_pb2.py
+    |               |       unity_output_pb2.py
+    |               |       unity_rl_initialization_input_pb2.py
+    |               |       unity_rl_initialization_output_pb2.py
+    |               |       unity_rl_input_pb2.py
+    |               |       unity_rl_output_pb2.py
+    |               |       unity_to_external_pb2.py
+    |               |       unity_to_external_pb2_grpc.py
+    |               |       __init__.py
+    |               |       
+    |               +---curricula
+    |               |       push.json
+    |               |       test.json
+    |               |       wall.json
+    |               |       
+    |               +---tests
+    |               |       mock_communicator.py
+    |               |       test_bc.py
+    |               |       test_ppo.py
+    |               |       test_unityagents.py
+    |               |       test_unitytrainers.py
+    |               |       __init__.py
+    |               |       
+    |               +---unityagents
+    |               |       brain.py
+    |               |       communicator.py
+    |               |       curriculum.py
+    |               |       environment.py
+    |               |       exception.py
+    |               |       rpc_communicator.py
+    |               |       socket_communicator.py
+    |               |       __init__.py
+    |               |       
+    |               \---unitytrainers
+    |                   |   buffer.py
+    |                   |   models.py
+    |                   |   trainer.py
+    |                   |   trainer_controller.py
+    |                   |   __init__.py
+    |                   |   
+    |                   +---bc
+    |                   |       models.py
+    |                   |       trainer.py
+    |                   |       __init__.py
+    |                   |       
+    |                   \---ppo
+    |                           models.py
+    |                           trainer.py
+    |                           __init__.py
+    |                           
+    +---cross-entropy
+    |   |   CEM.ipynb
+    |   |   CEM_X.ipynb
+    |   |   README.md
+    |   |   
+    |   \---.ipynb_checkpoints
+    |           CEM-checkpoint.ipynb
+    |           CEM_X-checkpoint.ipynb
+    |           README-checkpoint.md
+    |           
+    +---ddpg
+    |   +---bipedal
+    |   |   |   ddpg_agent_bip_X.py
+    |   |   |   ddpg_agent_bip_XX.py
+    |   |   |   DDPG_bip.ipynb
+    |   |   |   DDPG_bip_X.ipynb
+    |   |   |   DDPG_data_X.ipynb
+    |   |   |   ddpg_model_bip_X.py
+    |   |   |   ddpg_model_bip_XX.py
+    |   |   |   README.md
+    |   |   |   
+    |   |   \---data
+    |   +---pendulum
+    |   |   |   ddpg_agent_pend.py
+    |   |   |   ddpg_model_pend.py
+    |   |   |   DDPG_pend.ipynb
+    |   |   |   DDPG_pend.py
+    |   |   |   README.md
+    |   |   |   
+    |   |   +---.ipynb_checkpoints
+    |   |   |       DDPG_pend-checkpoint.ipynb
+    |   |   |       
+    |   |   +---.vs
+    |   |   |   |   ProjectSettings.json
+    |   |   |   |   slnx.sqlite
+    |   |   |   |   VSWorkspaceState.json
+    |   |   |   |   
+    |   |   |   \---ddpg-pendulum
+    |   |   |       +---FileContentIndex
+    |   |   |       |   |   1ed45948-d1ab-4001-9800-28a3a132224a.vsidx
+    |   |   |       |   |   read.lock
+    |   |   |       |   |   
+    |   |   |       |   \---merges
+    |   |   |       \---v17
+    |   |   \---__pycache__
+    |   |           ddpg_agent_pend.cpython-36.pyc
+    |   |           ddpg_model_pend.cpython-36.pyc
+    |   |           
+    |   \---reacher
+    |           ddpg_agent_reacher.py
+    |           ddpg_agent_reacher_X.py
+    |           ddpg_agent_single.py
+    |           ddpg_model_reacher.py
+    |           ddpg_model_reacher_X.py
+    |           ddpg_model_single.py
+    |           DDPG_reacher.ipynb
+    |           DDPG_reacher_X.ipynb
+    |           README.md
+    |           
+    +---discretization
+    |       Discretization.ipynb
+    |       Discretization_Online.ipynb
+    |       Discretization_Solution.ipynb
+    |       README.md
+    |       
+    +---dqn
+    |       agent.py
+    |       Deep_Q_Network.ipynb
+    |       Deep_Q_Network_X.ipynb
+    |       dqn params.pdf
+    |       dqn_agent.py
+    |       model.py
+    |       model_X.py
+    |       qnet.py
+    |       README.md
+    |       
+    +---dynamic-programming
+    |       check_test.py
+    |       Dynamic_Programming.ipynb
+    |       Dynamic_Programming_Solution.ipynb
+    |       frozenlake.py
+    |       plot_utils.py
+    |       README.md
+    |       
+    +---finance
+    |   |   ddpg_agent.py
+    |   |   DRL.ipynb
+    |   |   GeometricBrownianMotion_ Stocks.pdf
+    |   |   model.py
+    |   |   syntheticChrissAlmgren.py
+    |   |   utils.py
+    |   |   
+    |   \---text_images
+    |           4.jpeg
+    |           Actor-Critic.png
+    |           nvidia.png
+    |           RL.png
+    |           udacity.png
+    |           
+    +---hill-climbing
+    |       Hill_Climbing.ipynb
+    |       Hill_Climbing_X.ipynb
+    |       README.md
+    |       
+    +---lunar
+    |   +---ddpg
+    |   |   |   action_noise.png
+    |   |   |   ddpg_agent.py
+    |   |   |   ddpg_model.py
+    |   |   |   lunar_DDPG.ipynb
+    |   |   |   lunar_ddpg.jupyterlab-workspace
+    |   |   |   Solunar_ddpg.ipynb
+    |   |   |   
+    |   |   +---.ipynb_checkpoints
+    |   |   |       action_noise-checkpoint.png
+    |   |   |       brilliant-checkpoint.ipynb
+    |   |   |       ddpg_agent-checkpoint.py
+    |   |   |       ddpg_model-checkpoint.py
+    |   |   |       lunar_DDPG-checkpoint.ipynb
+    |   |   |       lunar_ddpg-checkpoint.jupyterlab-workspace
+    |   |   |       Solunar_ddpg-checkpoint.ipynb
+    |   |   |       
+    |   |   +---data
+    |   |   |   \---.ipynb_checkpoints
+    |   |   +---deleteable
+    |   |   |   |   ddpg_agent_lunar.py
+    |   |   |   |   ddpg_model_lunar.py
+    |   |   |   |   failedEnv.py
+    |   |   |   |   FailedSolution.ipynb
+    |   |   |   |   failed_agents.py
+    |   |   |   |   model-Copy1.py
+    |   |   |   |   
+    |   |   |   \---.ipynb_checkpoints
+    |   |   |           ddpg_agent_lunar-checkpoint.py
+    |   |   |           ddpg_model_lunar-checkpoint.py
+    |   |   |           failedEnv-checkpoint.py
+    |   |   |           FailedSolution-checkpoint.ipynb
+    |   |   |           failed_agents-checkpoint.py
+    |   |   |           model-Copy1-checkpoint.py
+    |   |   |           
+    |   |   \---__pycache__
+    |   |           agents.cpython-39.pyc
+    |   |           ddpg_agent.cpython-39.pyc
+    |   |           ddpg_agent_lunar.cpython-39.pyc
+    |   |           ddpg_agent_solution.cpython-39.pyc
+    |   |           ddpg_model.cpython-39.pyc
+    |   |           ddpg_model_lunar.cpython-39.pyc
+    |   |           model.cpython-39.pyc
+    |   |           parallelEnv.cpython-39.pyc
+    |   |           
+    |   +---dqn
+    |   |   |   agent_W.py
+    |   |   |   DQN_agent.py
+    |   |   |   DQN_PR_agent.py
+    |   |   |   DQN_utils.py
+    |   |   |   LL_DQN.py
+    |   |   |   lunar_doubleDQN.ipynb
+    |   |   |   lunar_DQN.ipynb
+    |   |   |   lunar_dqn.jupyterlab-workspace
+    |   |   |   lunar_DQN_PR.ipynb
+    |   |   |   lunar_DQN_W.ipynb
+    |   |   |   Q_network.py
+    |   |   |   workingfiles_colab_DQN.zip
+    |   |   |   
+    |   |   \---data
+    |   |       \---.ipynb_checkpoints
+    |   +---dqn2ddpg
+    |   |   |   agents.py
+    |   |   |   lunar_DDPG.ipynb
+    |   |   |   lunar_dqn2ddpg.jupyterlab-workspace
+    |   |   |   models.py
+    |   |   |   utils.py
+    |   |   |   
+    |   |   +---.ipynb_checkpoints
+    |   |   |       agents-checkpoint.py
+    |   |   |       lunar_DDPG-checkpoint.ipynb
+    |   |   |       models-checkpoint.py
+    |   |   |       utils-checkpoint.py
+    |   |   |       
+    |   |   +---data
+    |   |   \---__pycache__
+    |   |           agents.cpython-39.pyc
+    |   |           models.cpython-39.pyc
+    |   |           utils.cpython-39.pyc
+    |   |           
+    |   \---ppo
+    |       |   formulas.md
+    |       |   lunar_doublePPO.ipynb
+    |       |   lunar_parallel_DQN.ipynb
+    |       |   lunar_PPO.ipynb
+    |       |   lunar_ppo.jupyterlab-workspace
+    |       |   lunar_PPO_utils.py
+    |       |   parallelEnv.py
+    |       |   parallelEnv_PPO.py
+    |       |   pong_utils.py
+    |       |   surrogate_fxns.py
+    |       |   
+    |       +---.ipynb_checkpoints
+    |       |       formulas-checkpoint.md
+    |       |       lunar_doublePPO-checkpoint.ipynb
+    |       |       lunar_parallel_DQN-checkpoint.ipynb
+    |       |       lunar_PPO-checkpoint.ipynb
+    |       |       lunar_ppo-checkpoint.jupyterlab-workspace
+    |       |       lunar_PPO_utils-checkpoint.py
+    |       |       parallelEnv-checkpoint.py
+    |       |       parallelEnv_PPO-checkpoint.py
+    |       |       surrogate_fxns-checkpoint.py
+    |       |       
+    |       \---__pycache__
+    |               lunar_PPO_utils.cpython-39.pyc
+    |               parallelEnv.cpython-39.pyc
+    |               parallelEnv_PPO.cpython-39.pyc
+    |               surrogate_fxns.cpython-39.pyc
+    |               
+    +---monte-carlo
+    |   |   Monte_Carlo.ipynb
+    |   |   Monte_Carlo_Solution.ipynb
+    |   |   plot_utils.py
+    |   |   README.md
+    |   |   
+    |   +---.ipynb_checkpoints
+    |   |       Monte_Carlo_Solution-checkpoint.ipynb
+    |   |       
+    |   \---images
+    |           optimal.png
+    |           
+    +---reinforce
+    |   |   pg-pong-not-sure.py
+    |   |   README.md
+    |   |   REINFORCE_not_sure.ipynb
+    |   |   REINFORCE_OG.ipynb
+    |   |   reinforce_pend_tutorial.ipynb
+    |   |   
+    |   \---pong-PPO-REINFORCE
+    |       |   parallelEnv.py
+    |       |   parallelEnv_24.py
+    |       |   parallelEnv_PPO.py
+    |       |   parallelEnv_X.py
+    |       |   pong-PPO-OG.ipynb
+    |       |   pong-REINFORCE-OG.ipynb
+    |       |   pong_ppo.jupyterlab-workspace
+    |       |   pong_PPO_OG.ipynb
+    |       |   pong_PPO_X.ipynb
+    |       |   pong_REINFORCE_X.ipynb
+    |       |   pong_utils.py
+    |       |   pong_utils_OG.py
+    |       |   pong_utils_X.py
+    |       |   PPO.ipynb
+    |       |   
+    |       +---.ipynb_checkpoints
+    |       |       parallelEnv-checkpoint.py
+    |       |       parallelEnv_PPO-checkpoint.py
+    |       |       parallelEnv_X-checkpoint.py
+    |       |       pong-PPO-OG-checkpoint.ipynb
+    |       |       pong-REINFORCE-OG-checkpoint.ipynb
+    |       |       pong_PPO_OG-checkpoint.ipynb
+    |       |       pong_PPO_X-checkpoint.ipynb
+    |       |       pong_REINFORCE_X-checkpoint.ipynb
+    |       |       pong_utils_X-checkpoint.py
+    |       |       PPO-checkpoint.ipynb
+    |       |       
+    |       +---data
+    |       |       PPO_high.policy
+    |       |       PPO_OG.policy
+    |       |       REINFORCE_OG.policy
+    |       |       training_PPO.policy
+    |       |       
+    |       \---__pycache__
+    |               js_examples.cpython-39.pyc
+    |               parallelEnv.cpython-36.pyc
+    |               parallelEnv.cpython-39.pyc
+    |               parallelEnv_PPO.cpython-39.pyc
+    |               parallelEnv_X.cpython-39.pyc
+    |               pong_utils.cpython-36.pyc
+    |               pong_utils.cpython-39.pyc
+    |               pong_utils_OG.cpython-39.pyc
+    |               
+    +---taxi
+    |       agent.py
+    |       main.py
+    |       monitor.py
+    |       README.md
+    |       
+    +---temporal-difference
+    |       check_test.py
+    |       plot_utils.py
+    |       README.md
+    |       Temporal_Difference.ipynb
+    |       Temporal_Difference_Solution.ipynb
+    |       Temporal_Difference_v0.ipynb
+    |       
+    \---tile-coding
+        |   grid_tilings.py
+        |   README.md
+        |   Tiled_Lunar_Continuous.ipynb
+        |   Tile_Coding.ipynb
+        |   Tile_Coding_OG.ipynb
+        |   
+        \---.ipynb_checkpoints
+                grid_tilings-checkpoint.py
+                README-checkpoint.md
+                Tiled_Lunar_Continuous-checkpoint.ipynb
+                Tile_Coding-checkpoint.ipynb
+                

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}DRL Lab | Inventory{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Filesystem scan</p>
+  <h1>Inventory of the DRL material we can review or recover.</h1>
+  <p class="lede">
+    This scan is intentionally filtered to emphasize human-usable material instead of caches and notebook checkpoints.
+  </p>
+</section>
+
+<section class="section-block">
+  <div class="metric-grid metric-grid-wide">
+    <article class="metric-card">
+      <span class="metric-label">Files</span>
+      <strong>{{ inventory.overview.total_files }}</strong>
+    </article>
+    <article class="metric-card">
+      <span class="metric-label">Notebooks</span>
+      <strong>{{ inventory.overview.notebooks }}</strong>
+    </article>
+    <article class="metric-card">
+      <span class="metric-label">Python</span>
+      <strong>{{ inventory.overview.python_modules }}</strong>
+    </article>
+    <article class="metric-card">
+      <span class="metric-label">PDFs</span>
+      <strong>{{ inventory.overview.pdfs }}</strong>
+    </article>
+    <article class="metric-card">
+      <span class="metric-label">Archives</span>
+      <strong>{{ inventory.overview.archives }}</strong>
+    </article>
+    <article class="metric-card">
+      <span class="metric-label">Transcripts</span>
+      <strong>{{ inventory.overview.transcripts }}</strong>
+    </article>
+    <article class="metric-card">
+      <span class="metric-label">Policies</span>
+      <strong>{{ inventory.overview.policy_artifacts }}</strong>
+    </article>
+  </div>
+  <p class="panel-note">{{ inventory.overview.filtered_scan }}</p>
+</section>
+
+<section class="inventory-layout">
+  <article class="panel">
+    <div class="section-head compact">
+      <div>
+        <p class="eyebrow">Top Buckets</p>
+        <h2>Where the weight lives</h2>
+      </div>
+    </div>
+    <div class="mini-grid">
+      {% for bucket in inventory.buckets %}
+      <div class="mini-card">
+        <strong>{{ bucket.count }}</strong>
+        <span>{{ bucket.name }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="panel">
+    <div class="section-head compact">
+      <div>
+        <p class="eyebrow">File Mix</p>
+        <h2>Top extensions</h2>
+      </div>
+    </div>
+    <div class="mini-grid">
+      {% for item in inventory.extensions %}
+      <div class="mini-card">
+        <strong>{{ item.count }}</strong>
+        <span>{{ item.ext }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Environment Bundles</p>
+      <h2>What runtime assets are actually present</h2>
+    </div>
+  </div>
+  <div class="card-grid">
+    {% for item in inventory.environment_archives %}
+    <article class="card archive-card">
+      <h3>{{ item.path.split('/')[-1] }}</h3>
+      <p>{{ item.size_mb }} MB</p>
+      <p class="panel-note">Entries: {{ item.entry_count if item.entry_count is not none else "unknown" }}</p>
+      <code>{{ item.path }}</code>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="inventory-layout">
+  <article class="panel">
+    <div class="section-head compact">
+      <div>
+        <p class="eyebrow">Reference Shelf</p>
+        <h2>Papers and PDFs</h2>
+      </div>
+    </div>
+    <ul class="clean-list compact-list">
+      {% for paper in inventory.papers %}
+      <li><code>{{ paper.path }}</code> <span class="inline-note">{{ paper.size_mb }} MB</span></li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="panel">
+    <div class="section-head compact">
+      <div>
+        <p class="eyebrow">Transcripts</p>
+        <h2>Extracted subtitle assets</h2>
+      </div>
+    </div>
+    <ul class="clean-list compact-list">
+      {% for item in inventory.transcript_assets %}
+      <li><code>{{ item }}</code></li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="inventory-layout">
+  <article class="panel">
+    <div class="section-head compact">
+      <div>
+        <p class="eyebrow">Supporting Archives</p>
+        <h2>Project and utility zips</h2>
+      </div>
+    </div>
+    <ul class="clean-list compact-list">
+      {% for item in inventory.supporting_archives %}
+      <li>
+        <code>{{ item.path }}</code>
+        <span class="inline-note">{{ item.size_mb }} MB{% if item.entry_count is not none %}, {{ item.entry_count }} entries{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="panel">
+    <div class="section-head compact">
+      <div>
+        <p class="eyebrow">Model Artifacts</p>
+        <h2>Saved policy files</h2>
+      </div>
+    </div>
+    <ul class="clean-list compact-list">
+      {% for item in inventory.policy_assets %}
+      <li>
+        <code>{{ item.path }}</code>
+        <span class="inline-note">{{ item.size_mb }} MB</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="inventory-layout">
+  <article class="panel">
+    <div class="section-head compact">
+      <div>
+        <p class="eyebrow">Warnings</p>
+        <h2>Recovery constraints</h2>
+      </div>
+    </div>
+    <ul class="clean-list">
+      {% for warning in inventory.warnings %}
+      <li>{{ warning }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="panel">
+    <div class="section-head compact">
+      <div>
+        <p class="eyebrow">API Endpoints</p>
+        <h2>For future tie-in work</h2>
+      </div>
+    </div>
+    <ul class="clean-list compact-list">
+      <li><code>/api/v1/catalog</code></li>
+      <li><code>/api/v1/inventory</code></li>
+      <li><code>/healthz</code></li>
+    </ul>
+  </article>
+</section>
+{% endblock %}

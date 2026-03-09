@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}{% if section %}DRL Lab | {{ section.title }}{% else %}DRL Lab | Missing Section{% endif %}{% endblock %}
+{% block content %}
+{% if not section %}
+<section class="hero">
+  <p class="eyebrow">Catalog lookup</p>
+  <h1>Section not found.</h1>
+  <p class="lede">The requested DRL branch is not defined in the current catalog.</p>
+  <a class="btn btn-primary" href="{{ url_for('main.home') }}">Back to overview</a>
+</section>
+{% else %}
+<section class="hero">
+  <p class="eyebrow">{{ section.eyebrow }}</p>
+  <h1>{{ section.title }}</h1>
+  <p class="lede">{{ section.summary }}</p>
+  <div class="chip-row">
+    <span class="chip">{{ section.readiness }}</span>
+    <span class="chip chip-muted">{{ section.runtime }}</span>
+  </div>
+</section>
+
+<section class="detail-layout">
+  <div class="detail-main">
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">How It Works</p>
+          <h2>Structure</h2>
+        </div>
+      </div>
+      <p>{{ section.how_it_works }}</p>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Why Reuse</p>
+          <h2>Role in the new DRL arm</h2>
+        </div>
+      </div>
+      <p>{{ section.why_reuse }}</p>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Key Assets</p>
+          <h2>What is already here</h2>
+        </div>
+      </div>
+      <div class="asset-list">
+        {% for asset in section.highlights %}
+        <article class="asset-card">
+          <div class="asset-head">
+            <h3>{{ asset.label }}</h3>
+            <span class="asset-kind">{{ asset.kind }}</span>
+          </div>
+          <p>{{ asset.note }}</p>
+          <code>{{ asset.path }}</code>
+        </article>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+
+  <aside class="detail-sidebar">
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Needs</p>
+          <h2>To make it work again here</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for need in section.needs %}
+        <li>{{ need }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Related Arms</p>
+          <h2>Cross-links</h2>
+        </div>
+      </div>
+      <div class="stack-links">
+        {% for related in related_sections %}
+        <a class="related-link" href="{{ url_for('main.section_page', slug=related.slug) }}">
+          <strong>{{ related.nav_label }}</strong>
+          <span>{{ related.summary }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </article>
+  </aside>
+</section>
+{% endif %}
+{% endblock %}

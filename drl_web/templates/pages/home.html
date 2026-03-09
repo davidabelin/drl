@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}DRL Lab | Overview{% endblock %}
+{% block content %}
+<section class="hero hero-home">
+  <div class="hero-copy">
+    <p class="eyebrow">Archive review + curriculum map + future AIX arm</p>
+    <h1>Turn a raw DRL archive into a navigable lab instead of a folder dump.</h1>
+    <p class="lede">
+      This app treats the repository as a curriculum spine, a paper shelf, and an archive of experiments.
+      The goal for phase 2 is reviewability first: see what is reusable, what is legacy, and what deserves a live demo later.
+    </p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('main.inventory_page') }}">Browse Inventory</a>
+      <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='continuous-control') }}">Open Continuous Control</a>
+      <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='finance') }}">Open Finance Arm</a>
+    </div>
+  </div>
+  <aside class="hero-panel">
+    <div class="metric-grid">
+      <article class="metric-card">
+        <span class="metric-label">Files</span>
+        <strong>{{ inventory.overview.total_files }}</strong>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">Notebooks</span>
+        <strong>{{ inventory.overview.notebooks }}</strong>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">Python</span>
+        <strong>{{ inventory.overview.python_modules }}</strong>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">PDFs</span>
+        <strong>{{ inventory.overview.pdfs }}</strong>
+      </article>
+    </div>
+    <p class="panel-note">{{ inventory.overview.filtered_scan }}</p>
+  </aside>
+</section>
+
+<section class="callout-grid">
+  <article class="callout callout-live">
+    <h2>Review-first</h2>
+    <p>Foundations, papers, transcripts, and finance can become useful web content immediately.</p>
+  </article>
+  <article class="callout callout-legacy">
+    <h2>Legacy stack</h2>
+    <p>Navigation and Reacher are strong assets, but they need a quarantined Unity/ML-Agents recovery path.</p>
+  </article>
+  <article class="callout callout-archive">
+    <h2>Archive lane</h2>
+    <p>Lunar and Pong experiments stay visible, but only as curated lab-notebook material until cleaned up.</p>
+  </article>
+</section>
+
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Primary Arms</p>
+      <h2>Catalog of reusable branches</h2>
+    </div>
+    <p class="panel-note">These are the sub-arms the eventual DRL node can expose inside AIX.</p>
+  </div>
+  <div class="card-grid">
+    {% for section in sections %}
+    <article class="card section-card">
+      <p class="card-kicker">{{ section.eyebrow }}</p>
+      <h3>{{ section.title }}</h3>
+      <p>{{ section.summary }}</p>
+      <div class="chip-row">
+        <span class="chip">{{ section.readiness }}</span>
+        <span class="chip chip-muted">{{ section.runtime }}</span>
+      </div>
+      <p class="section-why">{{ section.why_reuse }}</p>
+      <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug=section.slug) }}">Open {{ section.nav_label }}</a>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Recommended Start</p>
+      <h2>What deserves attention first</h2>
+    </div>
+  </div>
+  <div class="feature-grid">
+    {% for section in featured_sections %}
+    <article class="feature-card">
+      <h3>{{ section.nav_label }}</h3>
+      <p>{{ section.how_it_works }}</p>
+      <a class="text-link" href="{{ url_for('main.section_page', slug=section.slug) }}">Review this branch</a>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
