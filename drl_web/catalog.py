@@ -1,4 +1,9 @@
-"""Curated content catalog for the DRL repository."""
+"""Curated content catalog for the DRL repository.
+
+The catalog is the narrative spine of the DRL web app. It groups a messy
+archive into reviewable arms, explains why each branch matters, and records the
+most useful assets that should stay visible while the live app is rebuilt.
+"""
 
 from __future__ import annotations
 
@@ -8,7 +13,7 @@ from functools import lru_cache
 
 @dataclass(frozen=True, slots=True)
 class AssetRef:
-    """One notable repository asset."""
+    """One notable repository asset surfaced by the catalog."""
 
     label: str
     kind: str
@@ -18,7 +23,12 @@ class AssetRef:
 
 @dataclass(frozen=True, slots=True)
 class Section:
-    """One content arm in the DRL lab."""
+    """One content arm in the DRL lab.
+
+    Each section records enough context to render a high-level review page
+    without forcing the templates to know anything about the raw repository
+    layout or the rationale for why a branch is worth keeping.
+    """
 
     slug: str
     nav_label: str
@@ -35,18 +45,26 @@ class Section:
     demo_slug: str | None = None
 
     def to_dict(self) -> dict:
+        """Return a JSON-ready representation of the section."""
+
         payload = asdict(self)
         payload["highlights"] = [asdict(asset) for asset in self.highlights]
         return payload
 
 
 def _asset(label: str, kind: str, path: str, note: str) -> AssetRef:
+    """Build a lightweight asset reference."""
+
     return AssetRef(label=label, kind=kind, path=path, note=note)
 
 
 @lru_cache(maxsize=1)
 def get_catalog() -> tuple[Section, ...]:
-    """Return the curated catalog for the DRL app."""
+    """Return the curated catalog for the DRL app.
+
+    The catalog is cached because it is static application metadata and is read
+    on nearly every page render.
+    """
 
     return (
         Section(

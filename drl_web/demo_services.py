@@ -1,4 +1,10 @@
-"""Interactive demo services for finance and foundations pages."""
+"""Interactive demo services for finance and foundations pages.
+
+This module converts archival notebook ideas into deterministic, web-friendly
+payload builders. Each builder accepts a small set of user controls and returns
+JSON-serializable data for templates and API endpoints, without depending on
+notebook state, plotting backends, or long-running training loops.
+"""
 
 from __future__ import annotations
 
@@ -15,6 +21,8 @@ FINANCE_MODULE_PATH = ROOT / "source-material" / "finance" / "syntheticChrissAlm
 
 
 def _load_finance_module():
+    """Load the archived finance simulator module directly from disk."""
+
     spec = spec_from_file_location("drl_finance_env", FINANCE_MODULE_PATH)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Unable to load finance module from {FINANCE_MODULE_PATH}")
@@ -25,11 +33,17 @@ def _load_finance_module():
 
 @lru_cache(maxsize=1)
 def _market_environment_cls():
+    """Return the cached finance ``MarketEnvironment`` class."""
+
     return getattr(_load_finance_module(), "MarketEnvironment")
 
 
 def finance_presets() -> tuple[dict, ...]:
-    """Return preset control values for the finance demo."""
+    """Return preset control values for the finance demo.
+
+    The presets are named for the execution style they imply so the UI can stay
+    readable for users who do not already know the underlying notation.
+    """
 
     return (
         {
@@ -57,6 +71,13 @@ def finance_presets() -> tuple[dict, ...]:
 
 
 def _round_trade_list(trade_list: np.ndarray) -> np.ndarray:
+    """Round a continuous analytical trade list to whole shares.
+
+    The archived environment computes real-valued trade sizes. The demo rounds
+    them for legibility, then pushes any residual back into the last non-zero
+    trade so the displayed schedule still sums to the full inventory.
+    """
+
     rounded = np.around(trade_list)
     residual = np.around(trade_list.sum() - rounded.sum())
     if residual != 0:
@@ -67,6 +88,8 @@ def _round_trade_list(trade_list: np.ndarray) -> np.ndarray:
 
 
 def _finance_story(first_trade_fraction: float, risk_aversion: float) -> str:
+    """Translate the current finance controls into plain-language guidance."""
+
     if risk_aversion <= 4e-7:
         return "This setting is patient. The schedule spreads the order out because market impact matters more than short-term price swings."
     if risk_aversion >= 4e-6:
@@ -77,7 +100,29 @@ def _finance_story(first_trade_fraction: float, risk_aversion: float) -> str:
 
 
 def build_finance_demo(*, liquidation_days: int, num_trades: int, risk_aversion: float) -> dict:
-    """Return finance demo payload for the current control values."""
+    """Return a finance demo payload for one set of controls.
+
+    Parameters
+    ----------
+    liquidation_days:
+        Number of days available to liquidate the position.
+    num_trades:
+        Number of execution slices used inside that horizon.
+    risk_aversion:
+        Almgren-Chriss lambda. Larger values prioritize reducing uncertainty
+        about future prices over minimizing immediate market impact.
+
+    Returns
+    -------
+    dict
+        A JSON-serializable payload with control echoes, headline metrics,
+        series for charts, and a short narrative summary for the current setup.
+
+    Notes
+    -----
+    This builder exposes the closed-form benchmark embedded in the archived
+    simulator. It does not run the notebook's actor-critic training loop.
+    """
 
     MarketEnvironment = _market_environment_cls()
     env = MarketEnvironment(lqd_time=liquidation_days, num_tr=num_trades, lambd=risk_aversion)
@@ -145,7 +190,11 @@ ACTION_ARROWS = ("<-", "v", "->", "^")
 
 
 def foundations_presets() -> tuple[dict, ...]:
-    """Return preset controls for the foundations demo."""
+    """Return preset controls for the foundations demo.
+
+    Each preset highlights a different intuition: a balanced default, a highly
+    slippery map, or a more short-sighted agent.
+    """
 
     return (
         {
@@ -173,14 +222,20 @@ def foundations_presets() -> tuple[dict, ...]:
 
 
 def _state_index(row: int, col: int, ncol: int) -> int:
+    """Encode one grid coordinate into a flat state index."""
+
     return row * ncol + col
 
 
 def _decode_state(index: int, ncol: int) -> tuple[int, int]:
+    """Decode a flat state index back into ``(row, col)`` form."""
+
     return divmod(index, ncol)
 
 
 def _step(row: int, col: int, action: int) -> tuple[int, int]:
+    """Apply one intended move with clipping at the grid boundaries."""
+
     if action == 0:
         col = max(col - 1, 0)
     elif action == 1:
@@ -193,6 +248,8 @@ def _step(row: int, col: int, action: int) -> tuple[int, int]:
 
 
 def _cell_reward(cell: str, living_reward: float) -> tuple[float, bool]:
+    """Return the reward and terminal flag for landing on one cell type."""
+
     if cell == "G":
         return 1.0, True
     if cell == "H":
@@ -201,6 +258,13 @@ def _cell_reward(cell: str, living_reward: float) -> tuple[float, bool]:
 
 
 def _transitions_for_state(row: int, col: int, action: int, slip: float, living_reward: float) -> list[tuple[float, int, float, bool]]:
+    """Return transition tuples for one state-action pair in the local gridworld.
+
+    The archived coursework used a Gym-based FrozenLake environment. The web
+    demo reimplements only the transition logic it needs so the page remains
+    self-contained and easy to run under the current app stack.
+    """
+
     chosen_prob = max(0.0, 1.0 - (2.0 * slip))
     directions = (
         ((action - 1) % 4, slip),
@@ -219,7 +283,30 @@ def _transitions_for_state(row: int, col: int, action: int, slip: float, living_
 
 
 def build_foundations_demo(*, discount: float, slip: float, living_reward: float) -> dict:
-    """Return a small value-iteration demo payload."""
+    """Return a value-iteration payload for the foundations demo.
+
+    Parameters
+    ----------
+    discount:
+        Gamma in the Bellman backup.
+    slip:
+        Probability mass assigned to each sideways slip direction.
+    living_reward:
+        Reward or penalty on ordinary non-terminal tiles.
+
+    Returns
+    -------
+    dict
+        A JSON-serializable payload with controls, headline metrics, per-tile
+        values, greedy policy hints, a path trace from the start state, and a
+        short story describing the current regime.
+
+    Notes
+    -----
+    This intentionally uses a tiny local gridworld instead of importing the old
+    Gym environment. The demo only needs the 4x4 map and slippery dynamics to
+    teach the planning idea.
+    """
 
     nrow = len(FOUNDATION_MAP)
     ncol = len(FOUNDATION_MAP[0])

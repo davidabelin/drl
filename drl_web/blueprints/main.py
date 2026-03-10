@@ -1,4 +1,14 @@
-"""Page and API routes for the DRL review app."""
+"""Page and API routes for the DRL review app.
+
+This blueprint serves two jobs:
+
+1. It renders the static catalog and inventory pages that organize the archive.
+2. It renders and feeds the interactive demo pages, translating query-string
+   controls into bounded payloads that the browser can request repeatedly.
+
+The demo math itself lives in :mod:`drl_web.demo_services`; this module is the
+thin orchestration layer between Flask, templates, and those service helpers.
+"""
 
 from __future__ import annotations
 
@@ -29,18 +39,32 @@ FOUNDATIONS_BOUNDS = {
 
 
 def _catalog():
+    """Return the cached catalog tuple from ``app.extensions``."""
+
     return current_app.extensions["drl_catalog"]
 
 
 def _catalog_by_slug():
+    """Return the catalog indexed by section slug."""
+
     return current_app.extensions["drl_catalog_by_slug"]
 
 
+def _demo_guides():
+    """Return the curated narrative guides for interactive demos."""
+
+    return current_app.extensions["drl_demo_guides"]
+
+
 def _inventory():
+    """Return the filtered repository inventory snapshot."""
+
     return current_app.extensions["drl_inventory"]
 
 
 def _parse_int_arg(name: str, *, default: int, minimum: int, maximum: int) -> int:
+    """Parse one integer query argument and clamp it into a safe range."""
+
     raw_value = request.args.get(name)
     if raw_value is None:
         return default
@@ -52,6 +76,8 @@ def _parse_int_arg(name: str, *, default: int, minimum: int, maximum: int) -> in
 
 
 def _parse_float_arg(name: str, *, default: float, minimum: float, maximum: float) -> float:
+    """Parse one float query argument and clamp it into a safe range."""
+
     raw_value = request.args.get(name)
     if raw_value is None:
         return default
@@ -63,6 +89,8 @@ def _parse_float_arg(name: str, *, default: float, minimum: float, maximum: floa
 
 
 def _finance_demo_payload() -> dict:
+    """Build a finance demo payload from the current request parameters."""
+
     preset = finance_presets()[0]
     return build_finance_demo(
         liquidation_days=_parse_int_arg(
@@ -87,6 +115,8 @@ def _finance_demo_payload() -> dict:
 
 
 def _foundations_demo_payload() -> dict:
+    """Build a foundations demo payload from the current request parameters."""
+
     preset = foundations_presets()[0]
     return build_foundations_demo(
         discount=_parse_float_arg(
@@ -111,6 +141,13 @@ def _foundations_demo_payload() -> dict:
 
 
 def _demo_section(slug: str):
+    """Resolve a demo slug to its section object or raise ``404``.
+
+    Only sections that explicitly advertise a ``demo_slug`` are routable under
+    ``/demos/<slug>``. This prevents arbitrary catalog sections from resolving
+    as empty demo pages.
+    """
+
     section = _catalog_by_slug().get(slug)
     if section is None or section.demo_slug != slug:
         abort(404)
@@ -119,7 +156,7 @@ def _demo_section(slug: str):
 
 @main_bp.get("/")
 def home() -> str:
-    """Render the DRL lab landing page."""
+    """Render the DRL landing page with catalog, inventory, and demo entrypoints."""
 
     sections = _catalog()
     inventory = _inventory()
@@ -143,7 +180,7 @@ def inventory_page() -> str:
 
 @main_bp.get("/sections/<slug>")
 def section_page(slug: str) -> str:
-    """Render one catalog section page."""
+    """Render one catalog section page and its related cross-links."""
 
     section = _catalog_by_slug().get(slug)
     if section is None:
@@ -162,14 +199,16 @@ def section_page(slug: str) -> str:
 
 @main_bp.get("/demos/<slug>")
 def demo_page(slug: str) -> str:
-    """Render one interactive demo page."""
+    """Render one interactive demo page with its seed payload and guide data."""
 
     section = _demo_section(slug)
+    guide = _demo_guides()[slug]
     if slug == "finance":
         initial_demo = _finance_demo_payload()
         return render_template(
             "pages/finance_demo.html",
             section=section,
+            guide=guide,
             presets=finance_presets(),
             initial_demo=initial_demo,
             risk_exponent=round(log10(initial_demo["controls"]["risk_aversion"]), 2),
@@ -179,6 +218,7 @@ def demo_page(slug: str) -> str:
         return render_template(
             "pages/foundations_demo.html",
             section=section,
+            guide=guide,
             presets=foundations_presets(),
             initial_demo=_foundations_demo_payload(),
             bounds=FOUNDATIONS_BOUNDS,
@@ -188,7 +228,7 @@ def demo_page(slug: str) -> str:
 
 @main_bp.get("/api/v1/catalog")
 def catalog_api():
-    """Return the curated catalog as JSON."""
+    """Return the curated catalog as JSON for external inspection or tooling."""
 
     return jsonify(
         {
@@ -207,7 +247,12 @@ def inventory_api():
 
 @main_bp.get("/api/v1/demos/<slug>")
 def demo_api(slug: str):
-    """Return one interactive demo payload as JSON."""
+    """Return one interactive demo payload as JSON.
+
+    These endpoints are intentionally side-effect free. The browser can call
+    them repeatedly while the user drags sliders, and each response is derived
+    entirely from the bounded query parameters in the current request.
+    """
 
     _demo_section(slug)
     if slug == "finance":
@@ -219,7 +264,7 @@ def demo_api(slug: str):
 
 @main_bp.get("/healthz")
 def healthz():
-    """Return a lightweight health payload."""
+    """Return a lightweight health payload for smoke tests and mounts."""
 
     return jsonify(
         {

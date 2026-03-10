@@ -187,6 +187,118 @@
     </article>
   </div>
 </section>
+
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Curator Guide</p>
+      <h2>{{ guide.overview_title }}</h2>
+    </div>
+  </div>
+  <p class="lede">{{ guide.overview_body }}</p>
+  <div class="card-grid top-gap">
+    {% for card in guide.cards %}
+    <article class="card">
+      <p class="card-kicker">{{ card.kicker }}</p>
+      <h3>{{ card.title }}</h3>
+      <p>{{ card.body }}</p>
+      {% if card.points %}
+      <ul class="clean-list compact-list">
+        {% for point in card.points %}
+        <li>{{ point }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="detail-layout detail-layout-demo">
+  <div class="detail-main">
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Source Trail</p>
+          <h2>What this demo is built from</h2>
+        </div>
+      </div>
+      <div class="asset-list">
+        {% for ref in guide.source_refs %}
+        <article class="asset-card">
+          <div class="asset-head">
+            <h3>{{ ref.label }}</h3>
+            <span class="asset-kind">{{ ref.kind }}</span>
+          </div>
+          <p>{{ ref.note }}</p>
+          <code>{{ ref.path }}</code>
+        </article>
+        {% endfor %}
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Glossary</p>
+          <h2>Plain-language anchors</h2>
+        </div>
+      </div>
+      <div class="card-grid">
+        {% for term in guide.glossary %}
+        <article class="card glossary-card">
+          <h3>{{ term.term }}</h3>
+          <p>{{ term.meaning }}</p>
+        </article>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+
+  <aside class="detail-sidebar">
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">This Demo Keeps</p>
+          <h2>Preserved from the archive</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for item in guide.keeps %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">This Demo Omits</p>
+          <h2>Deferred for later phases</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for item in guide.omits %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Next Steps</p>
+          <h2>Natural ways to deepen it</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for item in guide.next_steps %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+  </aside>
+</section>
 {% endblock %}
 {% block scripts %}
 <script id="finance-demo-seed" type="application/json">{{ initial_demo|tojson }}</script>

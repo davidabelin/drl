@@ -473,6 +473,10 @@ code {
   align-items: start;
 }
 
+.top-gap {
+  margin-top: 1rem;
+}
+
 .demo-sidebar,
 .demo-main {
   display: grid;
@@ -667,6 +671,14 @@ code {
   background: rgba(51, 95, 139, 0.12);
   border-color: rgba(51, 95, 139, 0.16);
   color: var(--accent-3);
+}
+
+.detail-layout-demo {
+  margin-top: 1.2rem;
+}
+
+.glossary-card {
+  align-content: start;
 }
 
 @media (max-width: 980px) {
