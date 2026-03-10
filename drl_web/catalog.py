@@ -32,6 +32,7 @@ class Section:
     related_slugs: tuple[str, ...]
     needs: tuple[str, ...]
     highlights: tuple[AssetRef, ...]
+    demo_slug: str | None = None
 
     def to_dict(self) -> dict:
         payload = asdict(self)
@@ -51,6 +52,7 @@ def get_catalog() -> tuple[Section, ...]:
         Section(
             slug="foundations",
             nav_label="Foundations",
+            demo_slug="foundations",
             eyebrow="Tabular RL + Classic Control",
             title="Foundations and warm-up labs",
             summary="The cleanest path for reviewing how RL pieces fit together before deep networks dominate the picture.",
@@ -194,6 +196,7 @@ def get_catalog() -> tuple[Section, ...]:
         Section(
             slug="finance",
             nav_label="Finance",
+            demo_slug="finance",
             eyebrow="Almgren-Chriss execution environment",
             title="Finance as a DRL application branch",
             summary="A rare self-contained domain application in the repo, and one of the most promising early interactive demos.",

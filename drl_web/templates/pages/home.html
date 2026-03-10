@@ -11,8 +11,8 @@
     </p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="{{ url_for('main.inventory_page') }}">Browse Inventory</a>
-      <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='continuous-control') }}">Open Continuous Control</a>
-      <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='finance') }}">Open Finance Arm</a>
+      <a class="btn btn-secondary" href="{{ url_for('main.demo_page', slug='finance') }}">Try Finance Demo</a>
+      <a class="btn btn-secondary" href="{{ url_for('main.demo_page', slug='foundations') }}">Try Foundations Demo</a>
     </div>
   </div>
   <aside class="hero-panel">
@@ -37,6 +37,31 @@
     <p class="panel-note">{{ inventory.overview.filtered_scan }}</p>
   </aside>
 </section>
+
+{% if demo_sections %}
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Interactive Demos</p>
+      <h2>Start here if you want intuition first</h2>
+    </div>
+    <p class="panel-note">These pages explain the idea in plain language and let the controls do the teaching.</p>
+  </div>
+  <div class="feature-grid">
+    {% for section in demo_sections %}
+    <article class="feature-card">
+      <p class="card-kicker">{{ section.nav_label }}</p>
+      <h3>{{ section.title }}</h3>
+      <p>{{ section.summary }}</p>
+      <div class="card-actions">
+        <a class="btn btn-primary" href="{{ url_for('main.demo_page', slug=section.demo_slug) }}">Open demo</a>
+        <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug=section.slug) }}">Review assets</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
 
 <section class="callout-grid">
   <article class="callout callout-live">
@@ -72,7 +97,12 @@
         <span class="chip chip-muted">{{ section.runtime }}</span>
       </div>
       <p class="section-why">{{ section.why_reuse }}</p>
-      <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug=section.slug) }}">Open {{ section.nav_label }}</a>
+      <div class="card-actions">
+        {% if section.demo_slug %}
+        <a class="btn btn-primary" href="{{ url_for('main.demo_page', slug=section.demo_slug) }}">Try Demo</a>
+        {% endif %}
+        <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug=section.slug) }}">Open {{ section.nav_label }}</a>
+      </div>
     </article>
     {% endfor %}
   </div>

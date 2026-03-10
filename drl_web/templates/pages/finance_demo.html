@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}DRL Lab | Finance Demo{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">{{ section.eyebrow }}</p>
+  <h1>Interactive demo: selling a large position without crushing the price</h1>
+  <p class="lede">
+    This page turns the old Almgren-Chriss finance work into a no-code demo. Move the sliders and watch how an execution plan changes when patience,
+    urgency, and market impact pull against each other.
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="{{ url_for('main.section_page', slug=section.slug) }}">Review finance assets</a>
+    <a class="btn btn-secondary" href="{{ url_for('main.demo_page', slug='foundations') }}">Open foundations demo</a>
+  </div>
+</section>
+
+<section class="demo-layout">
+  <aside class="demo-sidebar">
+    <article class="panel control-panel" id="finance-demo" data-endpoint="{{ url_for('main.demo_api', slug='finance') }}">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Control Panel</p>
+          <h2>Shape the liquidation plan</h2>
+        </div>
+      </div>
+      <p class="panel-note">You are choosing how quickly to sell 1,000,000 shares. Faster sales reduce exposure to randomness, but they move the market more.</p>
+
+      <div class="preset-row">
+        {% for preset in presets %}
+        <button class="preset-btn" type="button" data-preset='{{ preset|tojson }}'>{{ preset.label }}</button>
+        {% endfor %}
+      </div>
+
+      <div class="control-group">
+        <label for="finance-days">Liquidation window</label>
+        <input
+          id="finance-days"
+          name="liquidation_days"
+          type="range"
+          min="{{ bounds.liquidation_days.min }}"
+          max="{{ bounds.liquidation_days.max }}"
+          step="{{ bounds.liquidation_days.step }}"
+          value="{{ initial_demo.controls.liquidation_days }}"
+        >
+        <div class="slider-meta">
+          <span>short</span>
+          <output for="finance-days" data-output="liquidation_days">{{ initial_demo.controls.liquidation_days }} days</output>
+          <span>patient</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="finance-trades">Number of trades</label>
+        <input
+          id="finance-trades"
+          name="num_trades"
+          type="range"
+          min="{{ bounds.num_trades.min }}"
+          max="{{ bounds.num_trades.max }}"
+          step="{{ bounds.num_trades.step }}"
+          value="{{ initial_demo.controls.num_trades }}"
+        >
+        <div class="slider-meta">
+          <span>chunky</span>
+          <output for="finance-trades" data-output="num_trades">{{ initial_demo.controls.num_trades }} trades</output>
+          <span>granular</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="finance-risk">Risk aversion</label>
+        <input
+          id="finance-risk"
+          name="risk_exponent"
+          type="range"
+          min="{{ bounds.risk_exponent.min }}"
+          max="{{ bounds.risk_exponent.max }}"
+          step="{{ bounds.risk_exponent.step }}"
+          value="{{ risk_exponent }}"
+        >
+        <div class="slider-meta">
+          <span>patient</span>
+          <output for="finance-risk" data-output="risk_aversion">{{ "%.2e"|format(initial_demo.controls.risk_aversion) }}</output>
+          <span>urgent</span>
+        </div>
+        <p class="inline-note">Higher risk aversion means you hate uncertain future prices enough to sell more aggressively now.</p>
+      </div>
+
+      <article class="demo-note">
+        <strong>How to read this</strong>
+        <p>The bars show how many shares get sold each step. The line shows how much inventory remains. The frontier compares impact cost against risk.</p>
+      </article>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Live Readout</p>
+          <h2>What this plan is doing</h2>
+        </div>
+      </div>
+      <div class="mini-grid">
+        <article class="mini-card">
+          <span class="metric-label">Expected shortfall</span>
+          <strong data-metric="expected_shortfall"></strong>
+        </article>
+        <article class="mini-card">
+          <span class="metric-label">Risk (std dev)</span>
+          <strong data-metric="std_dev"></strong>
+        </article>
+        <article class="mini-card">
+          <span class="metric-label">Utility</span>
+          <strong data-metric="utility"></strong>
+        </article>
+        <article class="mini-card">
+          <span class="metric-label">First trade</span>
+          <strong data-metric="first_trade_fraction"></strong>
+        </article>
+        <article class="mini-card">
+          <span class="metric-label">Average trade</span>
+          <strong data-metric="average_trade_size"></strong>
+        </article>
+        <article class="mini-card">
+          <span class="metric-label">Half-life</span>
+          <strong data-metric="half_life"></strong>
+        </article>
+      </div>
+    </article>
+  </aside>
+
+  <div class="demo-main">
+    <article class="panel story-panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">What the sliders mean</p>
+          <h2 data-story-headline>{{ initial_demo.story.headline }}</h2>
+        </div>
+      </div>
+      <p class="lede" data-story-body>{{ initial_demo.story.body }}</p>
+      <div class="callout-grid demo-callout-grid">
+        <article class="callout callout-live">
+          <h3>Impact</h3>
+          <p>Large trades push the execution price against you.</p>
+        </article>
+        <article class="callout callout-legacy">
+          <h3>Risk</h3>
+          <p>Waiting keeps you exposed to random price movement.</p>
+        </article>
+        <article class="callout callout-archive">
+          <h3>Policy idea</h3>
+          <p>A good strategy balances those two forces instead of optimizing only one.</p>
+        </article>
+      </div>
+    </article>
+
+    <article class="panel chart-card">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Execution Schedule</p>
+          <h2>Shares sold at each trade</h2>
+        </div>
+        <p class="panel-note">Front-loaded plans appear as tall early bars.</p>
+      </div>
+      <div class="chart-frame" data-chart="trade-list"></div>
+    </article>
+
+    <article class="panel chart-card">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Inventory Decay</p>
+          <h2>How quickly the position disappears</h2>
+        </div>
+        <p class="panel-note">Steeper early drops mean the strategy is exiting faster.</p>
+      </div>
+      <div class="chart-frame" data-chart="remaining"></div>
+    </article>
+
+    <article class="panel chart-card">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Risk vs. Impact</p>
+          <h2>The efficient frontier</h2>
+        </div>
+        <p class="panel-note" data-chart-caption="frontier">Each point is a different risk preference for the same market.</p>
+      </div>
+      <div class="chart-frame" data-chart="frontier"></div>
+    </article>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script id="finance-demo-seed" type="application/json">{{ initial_demo|tojson }}</script>
+<script src="{{ url_for('static', filename='js/finance_demo.js') }}" defer></script>
+{% endblock %}

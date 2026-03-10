@@ -17,6 +17,12 @@
     <span class="chip">{{ section.readiness }}</span>
     <span class="chip chip-muted">{{ section.runtime }}</span>
   </div>
+  {% if section.demo_slug %}
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="{{ url_for('main.demo_page', slug=section.demo_slug) }}">Try the interactive demo</a>
+    <a class="btn btn-secondary" href="{{ url_for('main.inventory_page') }}">Open repository inventory</a>
+  </div>
+  {% endif %}
 </section>
 
 <section class="detail-layout">

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}DRL Lab | Foundations Demo{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">{{ section.eyebrow }}</p>
+  <h1>Interactive demo: watch value iteration teach a grid how to think ahead</h1>
+  <p class="lede">
+    This page turns the tabular RL foundations into a visual intuition builder. Move the sliders to see how discounting, uncertainty, and time pressure
+    change the best route through a small frozen-lake style world.
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="{{ url_for('main.section_page', slug=section.slug) }}">Review foundations assets</a>
+    <a class="btn btn-secondary" href="{{ url_for('main.demo_page', slug='finance') }}">Open finance demo</a>
+  </div>
+</section>
+
+<section class="demo-layout">
+  <aside class="demo-sidebar">
+    <article class="panel control-panel" id="foundations-demo" data-endpoint="{{ url_for('main.demo_api', slug='foundations') }}">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Control Panel</p>
+          <h2>Change the environment</h2>
+        </div>
+      </div>
+      <p class="panel-note">The agent starts in the top-left square and wants the goal. Holes end the episode badly. Value iteration estimates how promising every square is.</p>
+
+      <div class="preset-row">
+        {% for preset in presets %}
+        <button class="preset-btn" type="button" data-preset='{{ preset|tojson }}'>{{ preset.label }}</button>
+        {% endfor %}
+      </div>
+
+      <div class="control-group">
+        <label for="foundations-discount">Discount factor</label>
+        <input
+          id="foundations-discount"
+          name="discount"
+          type="range"
+          min="{{ bounds.discount.min }}"
+          max="{{ bounds.discount.max }}"
+          step="{{ bounds.discount.step }}"
+          value="{{ initial_demo.controls.discount }}"
+        >
+        <div class="slider-meta">
+          <span>short-sighted</span>
+          <output for="foundations-discount" data-output="discount">{{ "%.2f"|format(initial_demo.controls.discount) }}</output>
+          <span>far-sighted</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="foundations-slip">Slip probability</label>
+        <input
+          id="foundations-slip"
+          name="slip"
+          type="range"
+          min="{{ bounds.slip.min }}"
+          max="{{ bounds.slip.max }}"
+          step="{{ bounds.slip.step }}"
+          value="{{ initial_demo.controls.slip }}"
+        >
+        <div class="slider-meta">
+          <span>stable</span>
+          <output for="foundations-slip" data-output="slip">{{ "%.2f"|format(initial_demo.controls.slip) }}</output>
+          <span>slippery</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="foundations-living">Living reward</label>
+        <input
+          id="foundations-living"
+          name="living_reward"
+          type="range"
+          min="{{ bounds.living_reward.min }}"
+          max="{{ bounds.living_reward.max }}"
+          step="{{ bounds.living_reward.step }}"
+          value="{{ initial_demo.controls.living_reward }}"
+        >
+        <div class="slider-meta">
+          <span>linger</span>
+          <output for="foundations-living" data-output="living_reward">{{ "%.2f"|format(initial_demo.controls.living_reward) }}</output>
+          <span>move now</span>
+        </div>
+        <p class="inline-note">More negative living reward means the agent pays a bigger penalty for every extra step it takes.</p>
+      </div>
+
+      <article class="demo-note">
+        <strong>How to read the map</strong>
+        <p>Each tile shows a value estimate and the best move from that square. Green tiles pull the agent in. Red holes push value away.</p>
+      </article>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Live Readout</p>
+          <h2>What the agent currently believes</h2>
+        </div>
+      </div>
+      <div class="mini-grid">
+        <article class="mini-card">
+          <span class="metric-label">Start value</span>
+          <strong data-metric="start_value"></strong>
+        </article>
+        <article class="mini-card">
+          <span class="metric-label">Best first move</span>
+          <strong data-metric="best_first_move"></strong>
+        </article>
+        <article class="mini-card">
+          <span class="metric-label">Path hint</span>
+          <strong data-metric="path_length_hint"></strong>
+        </article>
+        <article class="mini-card">
+          <span class="metric-label">Safe floor tiles</span>
+          <strong data-metric="safe_tiles"></strong>
+        </article>
+      </div>
+    </article>
+  </aside>
+
+  <div class="demo-main">
+    <article class="panel story-panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">What changed</p>
+          <h2 data-story-headline>{{ initial_demo.story.headline }}</h2>
+        </div>
+      </div>
+      <p class="lede" data-story-body>{{ initial_demo.story.body }}</p>
+      <div class="callout-grid demo-callout-grid">
+        <article class="callout callout-live">
+          <h3>Discount</h3>
+          <p>Higher discount lets far-away rewards matter more right now.</p>
+        </article>
+        <article class="callout callout-legacy">
+          <h3>Slip</h3>
+          <p>When movement is unreliable, danger spreads beyond the holes themselves.</p>
+        </article>
+        <article class="callout callout-archive">
+          <h3>Living reward</h3>
+          <p>Step penalties decide whether wandering feels acceptable or expensive.</p>
+        </article>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Gridworld</p>
+          <h2>Value map and best action</h2>
+        </div>
+        <p class="panel-note">The highlighted path follows the greedy policy implied by the current values.</p>
+      </div>
+      <div class="gridworld" data-gridworld></div>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Policy Trace</p>
+          <h2>The route suggested from the start</h2>
+        </div>
+      </div>
+      <div class="path-strip" data-path></div>
+      <p class="panel-note" data-path-summary></p>
+    </article>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script id="foundations-demo-seed" type="application/json">{{ initial_demo|tojson }}</script>
+<script src="{{ url_for('static', filename='js/foundations_demo.js') }}" defer></script>
+{% endblock %}
