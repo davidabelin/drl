@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% block title %}DRL Lab | Lunar Lander{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Lunar Recovery Track</p>
+  <h1>Lunar Lander: real play, real machine control, and a bounded DQN training playground</h1>
+  <p class="lede">
+    This page is the first serious recovery pass on the lunar experiments. It keeps the real discrete LunarLander runtime in the loop while turning the old notebook branch into three connected surfaces:
+    human play, checkpoint playback, and a local-first training editor.
+  </p>
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="{{ url_for('main.section_page', slug='value-based') }}">Back to Value-Based</a>
+    <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='archive') }}">View Archive Context</a>
+  </div>
+  <div class="chip-row">
+    <span class="chip">Discrete LunarLander-v3 first</span>
+    <span class="chip chip-muted">Gymnasium + DQN recovery path</span>
+  </div>
+</section>
+
+{% if not lunar_runtime.available %}
+<section class="section-block">
+  <article class="callout callout-legacy">
+    <h2>Lunar runtime unavailable</h2>
+    <p>{{ lunar_runtime.reason }}</p>
+  </article>
+</section>
+{% else %}
+<section
+  class="section-block"
+  id="lunar-page"
+  data-create-session-url="{{ url_for('main.lunar_create_session') }}"
+  data-step-session-template="{{ url_for('main.lunar_step_session', session_id='SESSION_ID') }}"
+  data-reset-session-template="{{ url_for('main.lunar_reset_session', session_id='SESSION_ID') }}"
+  data-delete-session-template="{{ url_for('main.lunar_delete_session', session_id='SESSION_ID') }}"
+  data-checkpoints-url="{{ url_for('main.lunar_list_checkpoints') }}"
+  data-checkpoint-summary-template="{{ url_for('main.lunar_checkpoint_summary', checkpoint_id='CHECKPOINT_ID') }}"
+  data-jobs-url="{{ url_for('main.lunar_create_job') }}"
+  data-jobs-list-url="{{ url_for('main.lunar_list_jobs') }}"
+  data-job-template="{{ url_for('main.lunar_get_job', job_id=999999) }}"
+>
+  <div class="tab-strip" role="tablist" aria-label="Lunar tabs">
+    <button class="tab-btn is-active" type="button" data-tab="play">Play</button>
+    <button class="tab-btn" type="button" data-tab="machine">Machine Play</button>
+    <button class="tab-btn" type="button" data-tab="training">Training</button>
+  </div>
+
+  <div class="lunar-layout">
+    <div class="lunar-stage">
+      <article class="panel stage-panel">
+        <div class="stage-head">
+          <div>
+            <p class="eyebrow" data-stage-eyebrow>Human Control</p>
+            <h2 data-stage-title>Fly the lander yourself</h2>
+          </div>
+          <div class="chip-row">
+            <span class="chip" data-runtime-status>Runtime ready</span>
+          </div>
+        </div>
+        <div class="stage-screen">
+          <img class="stage-image" id="lunarStageImage" alt="Lunar Lander frame" />
+        </div>
+        <p class="panel-note" id="lunarStageStatus">Create a session to begin.</p>
+      </article>
+
+      <article class="panel tab-panel is-active" data-panel="play">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Play</p>
+            <h2>Use the same 4-action space the DQN sees</h2>
+          </div>
+        </div>
+        <p class="panel-note">Keyboard: `Space` = no-op, `ArrowLeft` = left booster, `ArrowUp` = main engine, `ArrowRight` = right booster.</p>
+        <div class="lunar-controls" id="playControls">
+          <button class="btn btn-primary" type="button" id="playNewSessionBtn">New session</button>
+          <button class="btn btn-secondary" type="button" id="playResetBtn">Reset</button>
+          {% for action, label in action_labels.items() %}
+          <button class="btn btn-secondary action-btn" type="button" data-action="{{ action }}">{{ label }}</button>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="panel tab-panel" data-panel="machine">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Machine Play</p>
+            <h2>Drive the same environment with a saved controller</h2>
+          </div>
+        </div>
+        <div class="stack-links">
+          <label class="field-stack">
+            <span>Controller</span>
+            <select id="checkpointSelect"></select>
+          </label>
+          <label class="field-stack">
+            <span>Playback speed</span>
+            <input id="machineSpeed" type="range" min="1" max="12" step="1" value="6">
+          </label>
+        </div>
+        <div class="lunar-controls">
+          <button class="btn btn-primary" type="button" id="machineCreateBtn">Load controller</button>
+          <button class="btn btn-secondary" type="button" id="machineRunBtn">Run</button>
+          <button class="btn btn-secondary" type="button" id="machinePauseBtn">Pause</button>
+          <button class="btn btn-secondary" type="button" id="machineStepBtn">Step</button>
+          <button class="btn btn-secondary" type="button" id="machineResetBtn">Reset</button>
+        </div>
+        <p class="panel-note" id="checkpointSummary">Pick a controller to inspect its checkpoint summary and then play it back.</p>
+      </article>
+
+      <article class="panel tab-panel" data-panel="training">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Training Playground</p>
+            <h2>Edit a bounded DQN recipe, then run it locally</h2>
+          </div>
+        </div>
+        <p class="panel-note">
+          The editor is intentionally constrained. You can tune the training config, the network shape, the epsilon schedule, and the reward helper, but the harness owns the runtime and checkpoint layout.
+        </p>
+        <div class="editor-shell">
+          <div id="lunarEditor" class="ace-host" aria-label="Lunar training editor"></div>
+          <textarea id="lunarEditorFallback" class="editor-fallback"></textarea>
+        </div>
+        <div class="lunar-controls">
+          <button class="btn btn-primary" type="button" id="trainSubmitBtn">Start training job</button>
+          <button class="btn btn-secondary" type="button" id="editorResetBtn">Reset template</button>
+          <button class="btn btn-secondary" type="button" id="evaluateCheckpointBtn">Evaluate selected checkpoint</button>
+        </div>
+      </article>
+    </div>
+
+    <aside class="lunar-sidebar">
+      <article class="panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Live Telemetry</p>
+            <h2>What the current episode is doing</h2>
+          </div>
+        </div>
+        <div class="mini-grid">
+          <article class="mini-card">
+            <span class="metric-label">Step</span>
+            <strong data-telemetry="step_index">0</strong>
+          </article>
+          <article class="mini-card">
+            <span class="metric-label">Reward</span>
+            <strong data-telemetry="reward">0.0</strong>
+          </article>
+          <article class="mini-card">
+            <span class="metric-label">Score</span>
+            <strong data-telemetry="score">0.0</strong>
+          </article>
+          <article class="mini-card">
+            <span class="metric-label">Action</span>
+            <strong data-telemetry="action">-</strong>
+          </article>
+          <article class="mini-card">
+            <span class="metric-label">Done</span>
+            <strong data-telemetry="done">false</strong>
+          </article>
+          <article class="mini-card">
+            <span class="metric-label">Truncated</span>
+            <strong data-telemetry="truncated">false</strong>
+          </article>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">State Vector</p>
+            <h2>The 8 numbers the agent sees</h2>
+          </div>
+        </div>
+        <div class="state-grid" id="lunarStateGrid"></div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Jobs</p>
+            <h2>Recent training and evaluation runs</h2>
+          </div>
+        </div>
+        <div class="job-list" id="jobList"></div>
+        <pre class="log-viewer" id="jobLogViewer">No job selected.</pre>
+      </article>
+    </aside>
+  </div>
+</section>
+{% endif %}
+
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Curator Guide</p>
+      <h2>{{ guide.overview_title }}</h2>
+    </div>
+  </div>
+  <p class="lede">{{ guide.overview_body }}</p>
+  <div class="card-grid top-gap">
+    {% for card in guide.cards %}
+    <article class="card">
+      <p class="card-kicker">{{ card.kicker }}</p>
+      <h3>{{ card.title }}</h3>
+      <p>{{ card.body }}</p>
+      {% if card.points %}
+      <ul class="clean-list compact-list">
+        {% for point in card.points %}
+        <li>{{ point }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="detail-layout detail-layout-demo">
+  <div class="detail-main">
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Source Trail</p>
+          <h2>What this page is recovering</h2>
+        </div>
+      </div>
+      <div class="asset-list">
+        {% for ref in guide.source_refs %}
+        <article class="asset-card">
+          <div class="asset-head">
+            <h3>{{ ref.label }}</h3>
+            <span class="asset-kind">{{ ref.kind }}</span>
+          </div>
+          <p>{{ ref.note }}</p>
+          <code>{{ ref.path }}</code>
+        </article>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+
+  <aside class="detail-sidebar">
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Glossary</p>
+          <h2>Terms to keep visible</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for term in guide.glossary %}
+        <li><strong>{{ term.term }}:</strong> {{ term.meaning }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">This Page Keeps</p>
+          <h2>Live now</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for item in guide.keeps %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">This Page Omits</p>
+          <h2>Still archive-first</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for item in guide.omits %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+  </aside>
+</section>
+{% endblock %}
+{% block scripts %}
+{% if lunar_runtime.available %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.4/ace.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script id="lunar-checkpoints-seed" type="application/json">{{ checkpoints|tojson }}</script>
+<script id="lunar-jobs-seed" type="application/json">{{ jobs|tojson }}</script>
+<script id="lunar-training-source-seed" type="application/json">{{ training_source|tojson }}</script>
+<script src="{{ url_for('static', filename='js/lunar_page.js') }}" defer></script>
+{% endif %}
+{% endblock %}

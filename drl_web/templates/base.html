@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
     <script>
       window.__AIX_HUB_URL__ = {{ aix_hub_url|tojson }};
+      window.__APP_BASE_PATH__ = {{ app_base_path|tojson }};
     </script>
   </head>
   <body>
@@ -21,6 +22,7 @@
       <nav class="site-nav">
         <a href="{{ url_for('main.home') }}">Overview</a>
         <a href="{{ url_for('main.inventory_page') }}">Inventory</a>
+        <a href="{{ url_for('main.lunar_page') }}">Lunar</a>
         {% for section in catalog_sections %}
         <a href="{{ url_for('main.section_page', slug=section.slug) }}">{{ section.nav_label }}</a>
         {% endfor %}

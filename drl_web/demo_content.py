@@ -83,6 +83,123 @@ def get_demo_guides() -> dict[str, DemoGuide]:
     """
 
     return {
+        "lunar": DemoGuide(
+            slug="lunar",
+            overview_title="Why Lunar Lander is the right next recovery target",
+            overview_body=(
+                "The lunar branch is where your archive stops being mostly lecture material and starts looking like an active research notebook. "
+                "It combines the familiar 8-value LunarLander state space, real rendered gameplay, multiple algorithm families, and enough helper code to "
+                "rebuild something genuinely interactive. This page deliberately starts with the discrete DQN path because it is the shortest line from human play "
+                "to learned control."
+            ),
+            cards=(
+                _card(
+                    "Recovered first",
+                    "Why the discrete DQN path leads v1",
+                    "Most of the lunar notebooks point at the 4-action discrete LunarLander environment. That makes it the best first milestone because the same action space works for keyboard play, "
+                    "machine playback, and DQN training without needing a second UI language for continuous throttles.",
+                ),
+                _card(
+                    "What the old branch contains",
+                    "One environment, several algorithm experiments",
+                    "The archive does not contain just one lunar project. It branches into DQN, prioritized replay, double DQN, PPO, DDPG, and a hybrid path toward continuous control.",
+                    "The DQN notebooks are the cleanest place to recover a playable web experience quickly.",
+                    "The PPO notebooks explain policy-driven control and include rollout helpers, but they are a second wave after the DQN runway is stable.",
+                    "The DDPG and continuous-control paths remain important, but they add a harder action space and a heavier recovery burden.",
+                ),
+                _card(
+                    "What to watch while playing",
+                    "The reward function tells the story",
+                    "LunarLander rewards getting closer to the pad, moving more slowly, and staying upright. Crashes are punished heavily, and fuel-burning engine usage carries a cost. "
+                    "The point of DQN here is to turn those local incentives into a stable landing policy over many noisy episodes.",
+                ),
+                _card(
+                    "How the new page is structured",
+                    "Play, Machine Play, and Training fit together",
+                    "Human play lets you feel the action space. Machine play lets you inspect what a controller actually does with the same interface. The training editor turns the old notebook code into a bounded experiment surface "
+                    "that can save reproducible checkpoints and then feed them straight back into playback.",
+                ),
+            ),
+            source_refs=(
+                _ref(
+                    "Discrete DQN notebook",
+                    "notebook",
+                    "source-material/lunar/dqn/lunar_DQN.ipynb",
+                    "Primary lunar DQN notebook with rendering, training, checkpoint save/load, and rollout playback.",
+                ),
+                _ref(
+                    "Discrete DQN script",
+                    "python module",
+                    "source-material/lunar/dqn/LL_DQN.py",
+                    "Notebook-export style script that bundles the environment setup, Q-network, replay loop, and checkpoint calls.",
+                ),
+                _ref(
+                    "Q-network",
+                    "python module",
+                    "source-material/lunar/dqn/Q_network.py",
+                    "Feed-forward network definition that anchors the first recovered checkpoint format.",
+                ),
+                _ref(
+                    "DQN agent",
+                    "python module",
+                    "source-material/lunar/dqn/DQN_agent.py",
+                    "Replay-buffer and learning loop reference for the discrete lunar path.",
+                ),
+                _ref(
+                    "PPO helpers",
+                    "python module",
+                    "source-material/lunar/ppo/lunar_PPO_utils.py",
+                    "Useful for later rollout and animation ideas, but not the first live recovery path.",
+                ),
+                _ref(
+                    "Continuous DDPG notebook",
+                    "notebook",
+                    "source-material/lunar/ddpg/lunar_DDPG.ipynb",
+                    "The future bridge into continuous LunarLander once the discrete lane is stable.",
+                ),
+            ),
+            glossary=(
+                _term(
+                    "State vector",
+                    "The 8 numbers describing lander position, velocity, angle, angular velocity, and whether each leg touches the ground.",
+                ),
+                _term(
+                    "Discrete action space",
+                    "A small menu of engine commands: do nothing, fire left, fire main, or fire right.",
+                ),
+                _term(
+                    "Q-value",
+                    "The model's estimate of how good one action is from the current state if the rest of the future is handled well.",
+                ),
+                _term(
+                    "Replay buffer",
+                    "A memory of past transitions that lets DQN learn from mixed experience instead of only the most recent episode.",
+                ),
+                _term(
+                    "Target network",
+                    "A slower-moving copy of the Q-network that stabilizes learning targets.",
+                ),
+                _term(
+                    "Reward shaping",
+                    "Extra reward hints layered onto the environment reward to make learning signals easier to follow.",
+                ),
+            ),
+            keeps=(
+                "The real Gymnasium LunarLander environment and its rendered gameplay frames.",
+                "The discrete DQN recovery path that dominates the lunar DQN notebooks.",
+                "The connection between live play, saved checkpoints, and the same 4-action control surface.",
+            ),
+            omits=(
+                "Continuous LunarLander and DDPG-powered throttle control.",
+                "The PPO and parallel-environment recovery paths as first-class runtime features.",
+                "Public-safe code execution hardening for the training editor.",
+            ),
+            next_steps=(
+                "Recover the PPO branch as a second machine-play lane once the DQN flow is stable.",
+                "Add a continuous-control companion page for LunarLanderContinuous rather than overloading this one.",
+                "Promote the strongest local checkpoint into a durable featured controller once it clears the evaluation gate.",
+            ),
+        ),
         "finance": DemoGuide(
             slug="finance",
             overview_title="Why this finance demo matters",

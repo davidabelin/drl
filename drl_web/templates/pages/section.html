@@ -23,6 +23,17 @@
     <a class="btn btn-secondary" href="{{ url_for('main.inventory_page') }}">Open repository inventory</a>
   </div>
   {% endif %}
+  {% if section.slug == "value-based" %}
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="{{ url_for('main.lunar_page') }}">Open Lunar Lander recovery page</a>
+    <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='archive') }}">See archive context</a>
+  </div>
+  {% elif section.slug == "archive" %}
+  <div class="hero-actions">
+    <a class="btn btn-primary" href="{{ url_for('main.lunar_page') }}">Open the live Lunar recovery track</a>
+    <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='value-based') }}">Return to Value-Based</a>
+  </div>
+  {% endif %}
 </section>
 
 <section class="detail-layout">

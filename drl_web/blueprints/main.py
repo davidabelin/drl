@@ -16,6 +16,7 @@ from datetime import UTC, datetime
 from math import log10
 
 from flask import Blueprint, abort, current_app, jsonify, render_template, request
+from werkzeug.exceptions import ServiceUnavailable
 
 from drl_web.demo_services import (
     build_finance_demo,
@@ -23,6 +24,8 @@ from drl_web.demo_services import (
     finance_presets,
     foundations_presets,
 )
+from drl_web.lunar_runtime import ACTION_LABELS
+from drl_web.lunar_templates import DEFAULT_TRAINING_SOURCE
 
 main_bp = Blueprint("main", __name__)
 
@@ -60,6 +63,24 @@ def _inventory():
     """Return the filtered repository inventory snapshot."""
 
     return current_app.extensions["drl_inventory"]
+
+
+def _lunar_jobs():
+    """Return the local Lunar job manager, if the runtime is available."""
+
+    return current_app.extensions["drl_lunar_jobs"]
+
+
+def _lunar_sessions():
+    """Return the live Lunar session manager, if the runtime is available."""
+
+    return current_app.extensions["drl_lunar_sessions"]
+
+
+def _lunar_runtime():
+    """Return the cached Lunar runtime availability payload."""
+
+    return current_app.extensions["drl_lunar_runtime"]
 
 
 def _parse_int_arg(name: str, *, default: int, minimum: int, maximum: int) -> int:
@@ -154,6 +175,51 @@ def _demo_section(slug: str):
     return section
 
 
+def _require_lunar_runtime():
+    """Return active Lunar managers or raise a clear runtime error response."""
+
+    runtime = _lunar_runtime()
+    jobs = _lunar_jobs()
+    sessions = _lunar_sessions()
+    if not runtime["available"] or jobs is None or sessions is None:
+        raise ServiceUnavailable(description=runtime.get("reason") or "Lunar runtime is unavailable.")
+    return jobs, sessions
+
+
+def _heuristic_checkpoint() -> dict:
+    """Return a pseudo-checkpoint entry for the built-in Lunar heuristic."""
+
+    return {
+        "id": "heuristic-baseline",
+        "label": "Gymnasium heuristic baseline",
+        "job_id": None,
+        "variant": "baseline",
+        "checkpoint_path": None,
+        "source_snapshot_path": None,
+        "training_summary": {
+            "algorithm": "heuristic",
+            "best_score": None,
+            "episodes_completed": None,
+            "env_id": "LunarLander-v3",
+        },
+        "evaluation_summary": None,
+        "featured": False,
+        "created_at": None,
+        "note": "Built into Gymnasium. Useful as a machine-play baseline before a learned checkpoint exists.",
+    }
+
+
+def _lunar_checkpoint_entries() -> list[dict]:
+    """Return heuristic baseline plus any real Lunar checkpoints."""
+
+    jobs = _lunar_jobs()
+    entries = [_heuristic_checkpoint()]
+    if jobs is not None:
+        jobs.refresh_featured_checkpoint()
+        entries.extend(jobs.list_checkpoints())
+    return entries
+
+
 @main_bp.get("/")
 def home() -> str:
     """Render the DRL landing page with catalog, inventory, and demo entrypoints."""
@@ -226,6 +292,22 @@ def demo_page(slug: str) -> str:
     abort(404)
 
 
+@main_bp.get("/lunar")
+def lunar_page() -> str:
+    """Render the dedicated Lunar Lander recovery page."""
+
+    guide = _demo_guides()["lunar"]
+    return render_template(
+        "pages/lunar.html",
+        guide=guide,
+        training_source=DEFAULT_TRAINING_SOURCE,
+        checkpoints=_lunar_checkpoint_entries(),
+        jobs=_lunar_jobs().list_jobs(limit=12) if _lunar_jobs() is not None else [],
+        action_labels=ACTION_LABELS,
+        lunar_runtime=_lunar_runtime(),
+    )
+
+
 @main_bp.get("/api/v1/catalog")
 def catalog_api():
     """Return the curated catalog as JSON for external inspection or tooling."""
@@ -262,6 +344,114 @@ def demo_api(slug: str):
     abort(404)
 
 
+@main_bp.post("/api/v1/lunar/sessions")
+def lunar_create_session():
+    """Create one live Lunar play or machine-play session."""
+
+    jobs, sessions = _require_lunar_runtime()
+    payload = request.get_json(silent=True) or {}
+    controller = str(payload.get("controller", "human")).strip().lower()
+    checkpoint_id = payload.get("checkpoint_id")
+    seed = payload.get("seed")
+    try:
+        session = sessions.create_session(controller=controller, checkpoint_id=checkpoint_id, seed=seed)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    return jsonify(session), 201
+
+
+@main_bp.post("/api/v1/lunar/sessions/<session_id>/step")
+def lunar_step_session(session_id: str):
+    """Advance one live Lunar session."""
+
+    _, sessions = _require_lunar_runtime()
+    payload = request.get_json(silent=True) or {}
+    try:
+        raw_action = payload.get("action")
+        action = None if raw_action is None else int(raw_action)
+        session = sessions.step_session(session_id, action=action)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except KeyError:
+        return jsonify({"error": "session was not found"}), 404
+    return jsonify(session)
+
+
+@main_bp.post("/api/v1/lunar/sessions/<session_id>/reset")
+def lunar_reset_session(session_id: str):
+    """Reset one live Lunar session."""
+
+    _, sessions = _require_lunar_runtime()
+    try:
+        session = sessions.reset_session(session_id)
+    except KeyError:
+        return jsonify({"error": "session was not found"}), 404
+    return jsonify(session)
+
+
+@main_bp.delete("/api/v1/lunar/sessions/<session_id>")
+def lunar_delete_session(session_id: str):
+    """Delete one live Lunar session."""
+
+    _, sessions = _require_lunar_runtime()
+    sessions.delete_session(session_id)
+    return jsonify({"status": "deleted", "session_id": session_id})
+
+
+@main_bp.get("/api/v1/lunar/checkpoints")
+def lunar_list_checkpoints():
+    """Return the playable Lunar baseline and checkpoint catalog."""
+
+    _require_lunar_runtime()
+    return jsonify({"checkpoints": _lunar_checkpoint_entries()})
+
+
+@main_bp.get("/api/v1/lunar/checkpoints/<checkpoint_id>/summary")
+def lunar_checkpoint_summary(checkpoint_id: str):
+    """Return one Lunar checkpoint summary."""
+
+    jobs, _ = _require_lunar_runtime()
+    if checkpoint_id == "heuristic-baseline":
+        return jsonify({"checkpoint": _heuristic_checkpoint()})
+    summary = jobs.get_checkpoint_summary(checkpoint_id)
+    if summary is None:
+        return jsonify({"error": "checkpoint was not found"}), 404
+    return jsonify({"checkpoint": summary})
+
+
+@main_bp.post("/api/v1/lunar/jobs")
+def lunar_create_job():
+    """Submit one local Lunar train or evaluate job."""
+
+    jobs, _ = _require_lunar_runtime()
+    payload = request.get_json(silent=True) or {}
+    try:
+        job = jobs.submit_job(payload)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    return jsonify({"job": job}), 202
+
+
+@main_bp.get("/api/v1/lunar/jobs")
+def lunar_list_jobs():
+    """Return recent Lunar jobs."""
+
+    jobs, _ = _require_lunar_runtime()
+    limit = _parse_int_arg("limit", default=20, minimum=1, maximum=200)
+    return jsonify({"jobs": jobs.list_jobs(limit=limit)})
+
+
+@main_bp.get("/api/v1/lunar/jobs/<int:job_id>")
+def lunar_get_job(job_id: int):
+    """Return one Lunar job."""
+
+    jobs, _ = _require_lunar_runtime()
+    job = jobs.get_job(job_id)
+    if job is None:
+        return jsonify({"error": "job was not found"}), 404
+    return jsonify({"job": job})
+
+
 @main_bp.get("/healthz")
 def healthz():
     """Return a lightweight health payload for smoke tests and mounts."""
@@ -271,5 +461,6 @@ def healthz():
             "status": "ok",
             "service": "drl-web",
             "timestamp": datetime.now(UTC).isoformat(),
+            "lunar_runtime": _lunar_runtime(),
         }
     )
