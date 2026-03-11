@@ -22,9 +22,17 @@ def utcnow_iso() -> str:
 
 
 def _read_json(path: Path, *, default: Any = None) -> Any:
+    """Read one JSON file, tolerating transient empty writes from live jobs."""
+
     if not path.exists():
         return default
-    return json.loads(path.read_text(encoding="utf-8"))
+    raw = path.read_text(encoding="utf-8", errors="replace").strip()
+    if not raw:
+        return default
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return default
 
 
 def _write_json(path: Path, payload: Any) -> None:

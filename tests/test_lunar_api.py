@@ -156,3 +156,33 @@ def test_lunar_routes_mount_through_aix(tmp_path, monkeypatch):
     assert response.status_code == 200
     response = client.get("/drl/api/v1/lunar/checkpoints")
     assert response.status_code == 200
+
+
+def test_drl_path_prefix_middleware_supports_prefixed_routes(tmp_path):
+    import importlib.util
+
+    run_path = Path(__file__).resolve().parents[1] / "run.py"
+    spec = importlib.util.spec_from_file_location("drl_run", run_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    PathPrefixMiddleware = module.PathPrefixMiddleware
+
+    prefixed_app = PathPrefixMiddleware(
+        create_app(
+            {
+                "TESTING": True,
+                "DRL_LUNAR_JOBS_ROOT": str(tmp_path / "prefixed_jobs"),
+            }
+        ),
+        "/drl",
+    )
+    client = Client(prefixed_app, Response)
+
+    response = client.get("/drl/healthz")
+    assert response.status_code == 200
+
+    response = client.get("/drl/lunar")
+    assert response.status_code == 200
+    body = response.get_data(as_text=True)
+    assert "/drl/api/v1/lunar/sessions" in body

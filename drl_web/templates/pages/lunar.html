@@ -1,20 +1,24 @@
 {% extends "base.html" %}
 {% block title %}DRL Lab | Lunar Lander{% endblock %}
 {% block content %}
-<section class="hero">
-  <p class="eyebrow">Lunar Recovery Track</p>
-  <h1>Lunar Lander: real play, real machine control, and a bounded DQN training playground</h1>
-  <p class="lede">
-    This page is the first serious recovery pass on the lunar experiments. It keeps the real discrete LunarLander runtime in the loop while turning the old notebook branch into three connected surfaces:
-    human play, checkpoint playback, and a local-first training editor.
-  </p>
-  <div class="hero-actions">
-    <a class="btn btn-primary" href="{{ url_for('main.section_page', slug='value-based') }}">Back to Value-Based</a>
-    <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='archive') }}">View Archive Context</a>
+<section class="hero lunar-hero">
+  <div class="lunar-hero-copy">
+    <p class="eyebrow">Lunar Recovery Track</p>
+    <h1>Lunar Lander: real play, real machine control, and a bounded DQN training playground</h1>
+    <p class="lede">
+      This page is the first serious recovery pass on the lunar experiments. It keeps the real discrete LunarLander runtime in the loop while turning the old notebook branch into three connected surfaces:
+      human play, checkpoint playback, and a local-first training editor.
+    </p>
   </div>
-  <div class="chip-row">
-    <span class="chip">Discrete LunarLander-v3 first</span>
-    <span class="chip chip-muted">Gymnasium + DQN recovery path</span>
+  <div class="lunar-hero-side">
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('main.section_page', slug='value-based') }}">Back to Value-Based</a>
+      <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='archive') }}">View Archive Context</a>
+    </div>
+    <div class="chip-row">
+      <span class="chip">Discrete LunarLander-v3 first</span>
+      <span class="chip chip-muted">Gymnasium + DQN recovery path</span>
+    </div>
   </div>
 </section>
 
@@ -127,6 +131,17 @@
           <button class="btn btn-secondary" type="button" id="evaluateCheckpointBtn">Evaluate selected checkpoint</button>
         </div>
       </article>
+
+      <article class="panel lunar-jobs-panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Jobs</p>
+            <h2>Recent training and evaluation runs</h2>
+          </div>
+        </div>
+        <div class="job-list" id="jobList"></div>
+        <pre class="log-viewer" id="jobLogViewer">No job selected.</pre>
+      </article>
     </div>
 
     <aside class="lunar-sidebar">
@@ -173,17 +188,6 @@
           </div>
         </div>
         <div class="state-grid" id="lunarStateGrid"></div>
-      </article>
-
-      <article class="panel">
-        <div class="section-head compact">
-          <div>
-            <p class="eyebrow">Jobs</p>
-            <h2>Recent training and evaluation runs</h2>
-          </div>
-        </div>
-        <div class="job-list" id="jobList"></div>
-        <pre class="log-viewer" id="jobLogViewer">No job selected.</pre>
       </article>
     </aside>
   </div>
