@@ -26,6 +26,7 @@
   const frontierChart = document.querySelector('[data-chart="frontier"]')
   const frontierCaption = document.querySelector('[data-chart-caption="frontier"]')
   const presetButtons = Array.from(root.querySelectorAll("[data-preset]"))
+  const sourceNote = document.getElementById("financeSourceNote")
   const seedPayload = JSON.parse(seedNode.textContent)
   const integerFormatter = new Intl.NumberFormat("en-US")
   const moneyFormatter = new Intl.NumberFormat("en-US", {
@@ -173,6 +174,12 @@
   function render(payload) {
     storyHeadline.textContent = payload.story.headline
     storyBody.textContent = payload.story.body
+    if (sourceNote && payload.source_note) {
+      const paragraph = sourceNote.querySelector("p")
+      if (paragraph) {
+        paragraph.textContent = payload.source_note
+      }
+    }
 
     Object.entries(payload.metrics).forEach(([name, value]) => {
       if (metricNodes[name]) {

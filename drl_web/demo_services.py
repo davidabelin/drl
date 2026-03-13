@@ -38,6 +38,114 @@ def _market_environment_cls():
     return getattr(_load_finance_module(), "MarketEnvironment")
 
 
+def _finance_fallback_metrics(
+    *,
+    liquidation_days: int,
+    num_trades: int,
+    risk_aversion: float,
+    first_trade_fraction: float,
+) -> tuple[float, float, float, float]:
+    """Return approximate finance metrics when the archive module is unavailable.
+
+    The deployed site should remain usable even if the raw notebook-era finance
+    files are absent from the container image. These formulas are deliberately
+    simple and pedagogical: they preserve the directional relationships between
+    urgency, impact, and price risk without pretending to be the original
+    Almgren-Chriss implementation.
+    """
+
+    inventory_value = 50_000_000.0
+    normalized_horizon = liquidation_days / 60.0
+    normalized_granularity = num_trades / max(liquidation_days, 1)
+    urgency = float(np.clip((np.log10(risk_aversion) + 7.0) / 3.0, 0.0, 1.0))
+
+    impact_component = 0.0007 + 0.0013 * first_trade_fraction + 0.00055 / max(normalized_horizon, 0.25)
+    slicing_component = 0.00022 / max(normalized_granularity + 0.15, 0.2)
+    risk_component = 0.00035 + 0.00115 * urgency + 0.00045 * max(normalized_horizon - 0.55, 0.0)
+
+    expected_shortfall = inventory_value * (impact_component + slicing_component)
+    std_dev = inventory_value * risk_component
+    variance = std_dev**2
+    utility = expected_shortfall + (risk_aversion * variance)
+    half_life = max(1.0, liquidation_days / (1.0 + 5.0 * urgency))
+    return expected_shortfall, std_dev, utility, half_life
+
+
+def _build_finance_demo_fallback(*, liquidation_days: int, num_trades: int, risk_aversion: float) -> dict:
+    """Return an approximate finance payload without importing archive code."""
+
+    total_shares = 1_000_000
+    starting_price = 50.0
+    trade_index = np.arange(num_trades, dtype=np.float64)
+    urgency = float(np.clip((np.log10(risk_aversion) + 7.0) / 3.0, 0.0, 1.0))
+    decay = 0.035 + 0.22 * urgency + 0.08 * max(0.0, (60.0 - liquidation_days) / 60.0)
+    weights = np.exp(-decay * trade_index)
+    weights = weights / weights.sum()
+    trade_list = np.round(weights * total_shares)
+    residual = int(total_shares - int(trade_list.sum()))
+    if residual != 0:
+        trade_list[-1] += residual
+    remaining = (np.ones(num_trades) * total_shares) - np.cumsum(trade_list)
+
+    first_trade_fraction = float(trade_list[0] / total_shares)
+    expected_shortfall, std_dev, utility, half_life = _finance_fallback_metrics(
+        liquidation_days=liquidation_days,
+        num_trades=num_trades,
+        risk_aversion=risk_aversion,
+        first_trade_fraction=first_trade_fraction,
+    )
+
+    frontier_points = []
+    for point in np.geomspace(1e-7, 1e-4, 28):
+        frontier_trade_fraction = float(
+            np.exp(-(0.035 + 0.22 * np.clip((np.log10(point) + 7.0) / 3.0, 0.0, 1.0))) / np.exp(
+                -(0.035 + 0.22 * np.clip((np.log10(point) + 7.0) / 3.0, 0.0, 1.0)) * np.arange(num_trades)
+            ).sum()
+        )
+        frontier_shortfall, frontier_std, _, _ = _finance_fallback_metrics(
+            liquidation_days=liquidation_days,
+            num_trades=num_trades,
+            risk_aversion=float(point),
+            first_trade_fraction=frontier_trade_fraction,
+        )
+        frontier_points.append(
+            {
+                "risk_aversion": float(point),
+                "expected_shortfall": float(frontier_shortfall),
+                "std_dev": float(frontier_std),
+            }
+        )
+
+    return {
+        "controls": {
+            "liquidation_days": liquidation_days,
+            "num_trades": num_trades,
+            "risk_aversion": risk_aversion,
+        },
+        "metrics": {
+            "shares_total": int(total_shares),
+            "starting_price": float(starting_price),
+            "expected_shortfall": float(expected_shortfall),
+            "std_dev": float(std_dev),
+            "utility": float(utility),
+            "half_life": float(half_life),
+            "first_trade_fraction": float(first_trade_fraction),
+            "average_trade_size": float(np.mean(trade_list)),
+        },
+        "series": {
+            "trade_list": [int(value) for value in trade_list.tolist()],
+            "remaining": [int(max(value, 0)) for value in remaining.tolist()],
+            "frontier": frontier_points,
+        },
+        "story": {
+            "headline": "Optimal execution turns a big sale into a timing problem, not just a math problem.",
+            "body": _finance_story(first_trade_fraction, risk_aversion),
+        },
+        "source_mode": "fallback",
+        "source_note": "Archive module unavailable in this runtime, so the demo is using a faithful approximation of the same trade-offs.",
+    }
+
+
 def finance_presets() -> tuple[dict, ...]:
     """Return preset control values for the finance demo.
 
@@ -124,7 +232,22 @@ def build_finance_demo(*, liquidation_days: int, num_trades: int, risk_aversion:
     simulator. It does not run the notebook's actor-critic training loop.
     """
 
-    MarketEnvironment = _market_environment_cls()
+    if not FINANCE_MODULE_PATH.exists():
+        return _build_finance_demo_fallback(
+            liquidation_days=liquidation_days,
+            num_trades=num_trades,
+            risk_aversion=risk_aversion,
+        )
+
+    try:
+        MarketEnvironment = _market_environment_cls()
+    except (FileNotFoundError, RuntimeError, AttributeError, OSError):
+        return _build_finance_demo_fallback(
+            liquidation_days=liquidation_days,
+            num_trades=num_trades,
+            risk_aversion=risk_aversion,
+        )
+
     env = MarketEnvironment(lqd_time=liquidation_days, num_tr=num_trades, lambd=risk_aversion)
     env.reset(liquid_time=liquidation_days, num_trades=num_trades, lamb=risk_aversion)
 
@@ -176,6 +299,8 @@ def build_finance_demo(*, liquidation_days: int, num_trades: int, risk_aversion:
             "headline": "Optimal execution turns a big sale into a timing problem, not just a math problem.",
             "body": _finance_story(first_trade_fraction, risk_aversion),
         },
+        "source_mode": "archive",
+        "source_note": "Using the archived Almgren-Chriss simulator from source-material/finance/syntheticChrissAlmgren.py.",
     }
 
 
