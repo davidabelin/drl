@@ -1,5 +1,10 @@
 # DRL Cloud Run Console Notes
 
+Legacy note: Cloud Run is no longer the canonical public DRL host. The quick
+deploy path now targets App Engine flexible so DRL has a cleaner standalone
+Google-managed URL. Keep this document only for the fallback/legacy Cloud Run
+path.
+
 ## Why this app is better on Cloud Run than App Engine standard
 
 The DRL lab now includes:

@@ -1,0 +1,6 @@
+-r requirements.txt
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# App Engine flex does not need CUDA wheels. Pin the CPU build explicitly so the
+# container stays small enough to build and push within App Engine's limits.
+torch==2.10.0+cpu

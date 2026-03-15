@@ -6,13 +6,26 @@ echo.
 echo ==== DRL Cloud Bootstrap ====
 echo Project : %PROJECT_ID%
 echo Region  : %REGION%
+echo AE Loc  : %APP_ENGINE_LOCATION%
 echo Repo    : %REPO_NAME%
 echo Bucket  : %BUCKET_NAME%
 
 echo.
-echo ^> gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com storage.googleapis.com logging.googleapis.com iam.googleapis.com iamcredentials.googleapis.com serviceusage.googleapis.com --project="%PROJECT_ID%"
-gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com storage.googleapis.com logging.googleapis.com iam.googleapis.com iamcredentials.googleapis.com serviceusage.googleapis.com --project="%PROJECT_ID%"
+echo ^> gcloud services enable appengine.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com storage.googleapis.com logging.googleapis.com iam.googleapis.com iamcredentials.googleapis.com serviceusage.googleapis.com compute.googleapis.com run.googleapis.com --project="%PROJECT_ID%"
+gcloud services enable appengine.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com storage.googleapis.com logging.googleapis.com iam.googleapis.com iamcredentials.googleapis.com serviceusage.googleapis.com compute.googleapis.com run.googleapis.com --project="%PROJECT_ID%"
 if errorlevel 1 goto :fail
+
+echo.
+echo ^> gcloud app describe --project="%PROJECT_ID%"
+gcloud app describe --project="%PROJECT_ID%" >nul 2>&1
+if errorlevel 1 (
+  echo.
+  echo ^> gcloud app create --project="%PROJECT_ID%" --region="%APP_ENGINE_LOCATION%"
+  gcloud app create --project="%PROJECT_ID%" --region="%APP_ENGINE_LOCATION%"
+  if errorlevel 1 goto :fail
+) else (
+  echo [OK] App Engine app already exists for %PROJECT_ID%
+)
 
 echo.
 echo ^> gcloud artifacts repositories describe %REPO_NAME% --location="%REGION%" --project="%PROJECT_ID%"

@@ -6,6 +6,7 @@ echo.
 echo ==== DRL Cloud Status ====
 echo Project: %PROJECT_ID%
 echo Region : %REGION%
+echo Canon  : %CANONICAL_DRL_URL%
 echo SA     : %SA_EMAIL%
 
 echo.
@@ -54,7 +55,7 @@ echo ^> gcloud app describe --project="%PROJECT_ID%"
 gcloud app describe --project="%PROJECT_ID%"
 if errorlevel 1 (
   echo.
-  echo [INFO] No App Engine app exists yet for %PROJECT_ID%. That is expected for the Cloud Run path.
+  echo [INFO] No App Engine app exists yet for %PROJECT_ID%.
 )
 
 echo.

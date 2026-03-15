@@ -1,0 +1,9 @@
+runtime: custom
+env: flex
+
+env_variables:
+  AIX_HUB_URL: https://aix-labs.uw.r.appspot.com/
+  DRL_LUNAR_JOBS_ROOT: /tmp/drl_lunar_jobs
+  DRL_LUNAR_MAX_WORKERS: "1"
+
+service_account: administrator@deeprl-031026.iam.gserviceaccount.com

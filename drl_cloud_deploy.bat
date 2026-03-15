@@ -3,28 +3,40 @@ setlocal
 call "%~dp0drl_cloud_env.bat"
 pushd "%~dp0" >nul 2>&1
 if errorlevel 1 goto :fail
-set "SOURCE_DIR=%CD%"
 
 echo.
-echo ==== DRL Cloud Deploy ====
+echo ==== DRL App Engine Deploy ====
 echo Project : %PROJECT_ID%
-echo Region  : %REGION%
-echo Service : %SERVICE_NAME%
-echo Source  : %SOURCE_DIR%
-echo Memory  : %RUN_MEMORY%
-echo CPU     : %RUN_CPU%
+echo Region  : %APP_ENGINE_LOCATION%
+echo URL     : %CANONICAL_DRL_URL%
 
 echo.
-echo ^> gcloud run deploy %SERVICE_NAME% --project="%PROJECT_ID%" --region="%REGION%" --source . --service-account="%SA_EMAIL%" --allow-unauthenticated --memory="%RUN_MEMORY%" --cpu="%RUN_CPU%" --set-env-vars="AIX_HUB_URL=/,DRL_LUNAR_JOBS_ROOT=/tmp/drl_lunar_jobs,DRL_LUNAR_MAX_WORKERS=1"
-gcloud run deploy %SERVICE_NAME% --project="%PROJECT_ID%" --region="%REGION%" --source . --service-account="%SA_EMAIL%" --allow-unauthenticated --memory="%RUN_MEMORY%" --cpu="%RUN_CPU%" --set-env-vars="AIX_HUB_URL=/,DRL_LUNAR_JOBS_ROOT=/tmp/drl_lunar_jobs,DRL_LUNAR_MAX_WORKERS=1"
-if errorlevel 1 goto :fail_popd
+echo ^> gcloud app describe --project="%PROJECT_ID%"
+gcloud app describe --project="%PROJECT_ID%" >nul 2>&1
+if errorlevel 1 (
+  echo.
+  echo ^> gcloud app create --project="%PROJECT_ID%" --region="%APP_ENGINE_LOCATION%"
+  gcloud app create --project="%PROJECT_ID%" --region="%APP_ENGINE_LOCATION%"
+  if errorlevel 1 goto :fail_popd
+)
+
 echo.
-echo ^> gcloud run services describe %SERVICE_NAME% --project="%PROJECT_ID%" --region="%REGION%" --format="yaml(metadata.name,status.url,spec.template.spec.serviceAccountName,spec.template.spec.containers[0].resources,spec.template.spec.containers[0].env)"
-gcloud run services describe %SERVICE_NAME% --project="%PROJECT_ID%" --region="%REGION%" --format="yaml(metadata.name,status.url,spec.template.spec.serviceAccountName,spec.template.spec.containers[0].resources,spec.template.spec.containers[0].env)"
+echo ^> gcloud app deploy app.yaml --project="%PROJECT_ID%" --quiet
+gcloud app deploy app.yaml --project="%PROJECT_ID%" --quiet
 if errorlevel 1 goto :fail_popd
 
 echo.
-echo [OK] Deploy finished.
+echo ^> gcloud app describe --project="%PROJECT_ID%" --format="yaml(defaultHostname,locationId,serviceAccount)"
+gcloud app describe --project="%PROJECT_ID%" --format="yaml(defaultHostname,locationId,serviceAccount)"
+if errorlevel 1 goto :fail_popd
+
+echo.
+echo ^> gcloud app versions list --project="%PROJECT_ID%"
+gcloud app versions list --project="%PROJECT_ID%"
+if errorlevel 1 goto :fail_popd
+
+echo.
+echo [OK] Canonical App Engine deploy finished.
 popd >nul
 endlocal
 exit /b 0
