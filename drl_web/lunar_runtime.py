@@ -57,7 +57,14 @@ class RuntimeUnavailableError(RuntimeError):
 
 
 def ensure_lunar_runtime() -> None:
-    """Raise a clear error if Gymnasium or Torch are unavailable."""
+    """Raise a clear error if Gymnasium or Torch are unavailable.
+
+    Role
+    ----
+    DRL is a sister app with heavier local dependencies than the AIX shell.
+    This guard centralizes the runtime gate so both the live-play page and the
+    training job stack fail with the same explicit message.
+    """
 
     if gym is None:
         raise RuntimeUnavailableError("Gymnasium is not installed for the Lunar runtime.")
@@ -66,7 +73,13 @@ def ensure_lunar_runtime() -> None:
 
 
 def resolve_lunar_env_id() -> str:
-    """Return the preferred discrete LunarLander environment id."""
+    """Return the preferred discrete LunarLander environment id.
+
+    Notes
+    -----
+    The code prefers the newest supported discrete environment while preserving
+    compatibility with older local installs.
+    """
 
     ensure_lunar_runtime()
     if "LunarLander-v3" in gym.envs.registry:
@@ -77,7 +90,13 @@ def resolve_lunar_env_id() -> str:
 
 
 def make_lunar_env(*, render_mode: str = "rgb_array"):
-    """Create a fresh discrete LunarLander environment with the v1 defaults."""
+    """Create a fresh discrete LunarLander environment with the v1 defaults.
+
+    Used By
+    -------
+    Live session control in `LunarSessionManager` and offline worker processes
+    in `drl_web.lunar_worker`.
+    """
 
     ensure_lunar_runtime()
     env_id = resolve_lunar_env_id()
@@ -93,7 +112,13 @@ def make_lunar_env(*, render_mode: str = "rgb_array"):
 
 
 def scale_state(state: np.ndarray | list[float]) -> np.ndarray:
-    """Scale one Lunar state vector into a network-friendly range."""
+    """Scale one Lunar state vector into a network-friendly range.
+
+    Role
+    ----
+    Both training and checkpoint inference share this transform so saved models
+    and live runtime sessions interpret state vectors identically.
+    """
 
     arr = np.asarray(state, dtype=np.float32)
     scaled = np.zeros_like(arr)
@@ -113,7 +138,13 @@ def frame_to_data_url(frame: np.ndarray) -> str:
 
 
 class QNetwork(nn.Module):
-    """Simple feed-forward Q-network for discrete LunarLander."""
+    """Simple feed-forward Q-network for discrete LunarLander.
+
+    Cross-Repo Context
+    ------------------
+    This network is the core policy/value artifact produced by the DRL worker
+    and later loaded by the live Lunar runtime for checkpoint-controlled play.
+    """
 
     def __init__(self, state_size: int, action_size: int, hidden_sizes: tuple[int, ...], seed: int) -> None:
         super().__init__()
@@ -133,7 +164,7 @@ class QNetwork(nn.Module):
 
 @dataclass(frozen=True, slots=True)
 class LoadedCheckpoint:
-    """One checkpoint and the controller function built from it."""
+    """One checkpoint plus the callable controller derived from it."""
 
     checkpoint_id: str
     checkpoint_path: Path
@@ -146,7 +177,14 @@ class LoadedCheckpoint:
 
 
 def load_checkpoint(checkpoint_id: str, checkpoint_path: str | Path) -> LoadedCheckpoint:
-    """Load one saved DQN checkpoint into an inference-ready controller."""
+    """Load one saved DQN checkpoint into an inference-ready controller.
+
+    Role
+    ----
+    This is the handoff point between offline training artifacts and the live
+    DRL app. It reconstructs the network, wraps it in a pure controller
+    callable, and emits a compact summary for the UI/catalog layers.
+    """
 
     ensure_lunar_runtime()
     path = Path(checkpoint_path).resolve()
@@ -190,7 +228,7 @@ def load_checkpoint(checkpoint_id: str, checkpoint_path: str | Path) -> LoadedCh
 
 @dataclass(slots=True)
 class LunarSession:
-    """One live Lunar environment session."""
+    """One live Lunar environment session tracked by the API layer."""
 
     session_id: str
     controller: str
@@ -209,7 +247,20 @@ class LunarSession:
 
 
 class LunarSessionManager:
-    """Manage live LunarLander play sessions for the API surface."""
+    """Manage live LunarLander play sessions for the API surface.
+
+    Role
+    ----
+    This class owns the interactive runtime state for the DRL live-play page:
+    environment lifecycle, session ids, checkpoint-backed controllers, and the
+    rendered payload returned to the frontend after each step.
+
+    Cross-Repo Context
+    ------------------
+    AIX links to DRL as a sister app rather than embedding this runtime. The
+    session manager therefore remains a DRL-local concern even though AIX
+    documents and routes users toward it.
+    """
 
     def __init__(self, *, checkpoint_loader: Callable[[str], LoadedCheckpoint | None]) -> None:
         ensure_lunar_runtime()

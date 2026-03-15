@@ -1,4 +1,11 @@
-"""Background jobs and checkpoint catalog for the Lunar Lander page."""
+"""Background jobs and checkpoint catalog for the Lunar Lander page.
+
+Role
+----
+This module is the orchestration layer above the worker subprocess. It validates
+job requests, persists on-disk job metadata, launches the worker, and builds the
+checkpoint catalog consumed by the DRL UI.
+"""
 
 from __future__ import annotations
 
@@ -36,11 +43,15 @@ def _read_json(path: Path, *, default: Any = None) -> Any:
 
 
 def _write_json(path: Path, payload: Any) -> None:
+    """Write one JSON payload, creating parent directories first."""
+
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
 
 def _tail_text(path: Path, *, lines: int = 24) -> str:
+    """Return the tail of a text log for lightweight job-status polling."""
+
     if not path.exists():
         return ""
     content = path.read_text(encoding="utf-8", errors="replace").splitlines()
@@ -48,6 +59,8 @@ def _tail_text(path: Path, *, lines: int = 24) -> str:
 
 
 def _tail_metrics(path: Path, *, lines: int = 8) -> list[dict[str, Any]]:
+    """Return the last few parsed metric rows from a JSONL metrics stream."""
+
     if not path.exists():
         return []
     rows = []
@@ -63,7 +76,14 @@ def _tail_metrics(path: Path, *, lines: int = 8) -> list[dict[str, Any]]:
 
 
 class LunarJobManager:
-    """Queue, execute, and catalog local Lunar training and evaluation jobs."""
+    """Queue, execute, and catalog local Lunar training and evaluation jobs.
+
+    Role
+    ----
+    This class is the persistent control plane for the DRL Lunar page. The web
+    blueprints call it to submit work, poll status, browse checkpoints, and
+    promote a featured checkpoint once evaluation clears the current gate.
+    """
 
     FEATURED_POINTER = "featured_checkpoint.json"
 
@@ -90,7 +110,13 @@ class LunarJobManager:
         return self.jobs_root / self.FEATURED_POINTER
 
     def submit_job(self, payload: dict[str, Any]) -> dict[str, Any]:
-        """Validate, persist, and queue one Lunar job."""
+        """Validate, persist, and queue one Lunar job.
+
+        Side Effects
+        ------------
+        Creates a job directory, writes `metadata.json`, snapshots the selected
+        training source when needed, and schedules `_run_job` on the executor.
+        """
 
         kind = str(payload.get("kind", "")).strip().lower()
         if kind not in {"train", "evaluate"}:
@@ -205,7 +231,14 @@ class LunarJobManager:
         return _read_json(path, default=None)
 
     def list_checkpoints(self) -> list[dict[str, Any]]:
-        """Return the catalog of playable Lunar checkpoints."""
+        """Return the catalog of playable Lunar checkpoints.
+
+        Role
+        ----
+        The live-play page and evaluation controls should not inspect raw job
+        directories. This method converts completed training jobs into a stable
+        playable-checkpoint catalog with optional evaluation summaries.
+        """
 
         featured_pointer = _read_json(self.featured_pointer_path, default={}) or {}
         checkpoints: list[dict[str, Any]] = []
@@ -253,7 +286,13 @@ class LunarJobManager:
         return str(summary["checkpoint_path"])
 
     def refresh_featured_checkpoint(self) -> dict[str, Any] | None:
-        """Promote the strongest evaluated checkpoint that clears the v1 gate."""
+        """Promote the strongest evaluated checkpoint that clears the v1 gate.
+
+        Notes
+        -----
+        The current gate is intentionally simple and product-facing: mean score
+        at least 100 over at least 20 evaluation episodes.
+        """
 
         candidates = []
         for checkpoint in self.list_checkpoints():
@@ -331,6 +370,14 @@ class LunarJobManager:
         return matches[0][1]
 
     def _run_job(self, job_id: int) -> None:
+        """Execute one queued job by delegating to the worker subprocess.
+
+        Role
+        ----
+        The manager stays responsible for metadata, log capture, and status
+        transitions while the worker owns the actual training/evaluation logic.
+        """
+
         record = self._get_record(job_id)
         if record is None:
             return

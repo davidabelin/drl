@@ -1,4 +1,12 @@
-"""Subprocess worker for Lunar training and evaluation jobs."""
+"""Subprocess worker for Lunar training and evaluation jobs.
+
+Role
+----
+This module runs the heavy training/evaluation loop outside the Flask process.
+It reads a persisted job record, executes one DQN training or evaluation job,
+streams logs/metrics to disk, and writes a final `result.json` for the job
+manager to pick up.
+"""
 
 from __future__ import annotations
 
@@ -25,15 +33,25 @@ def utcnow_iso() -> str:
 
 
 def _read_json(path: Path) -> dict[str, Any]:
+    """Read one JSON metadata file used by the worker process."""
+
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    """Write one JSON payload produced by the worker process."""
+
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
 
 class ReplayBuffer:
-    """Simple replay buffer for DQN training."""
+    """Simple replay buffer for DQN training.
+
+    Notes
+    -----
+    The implementation is intentionally compact because the worker is a
+    controlled local pipeline, not a general-purpose RL framework.
+    """
 
     def __init__(self, buffer_size: int) -> None:
         self.memory = deque(maxlen=int(buffer_size))
@@ -57,7 +75,13 @@ class ReplayBuffer:
 
 
 class DQNAgent:
-    """Minimal DQN agent used by the worker."""
+    """Minimal DQN agent used by the worker.
+
+    Role
+    ----
+    This wrapper owns the paired local/target networks plus the optimizer and
+    the single training step used by the current Lunar workflow.
+    """
 
     def __init__(self, *, hidden_sizes: tuple[int, ...], seed: int, learning_rate: float) -> None:
         torch.manual_seed(int(seed))
@@ -92,6 +116,8 @@ class DQNAgent:
 
 
 def _save_checkpoint(path: Path, *, agent: DQNAgent, hidden_sizes: tuple[int, ...], score: float, episode: int, seed: int) -> None:
+    """Serialize one training checkpoint in the format expected by the runtime."""
+
     payload = {
         "env_id": resolve_lunar_env_id(),
         "state_size": 8,
@@ -107,6 +133,15 @@ def _save_checkpoint(path: Path, *, agent: DQNAgent, hidden_sizes: tuple[int, ..
 
 
 def _run_training(job_dir: Path, record: dict[str, Any]) -> dict[str, Any]:
+    """Execute one DQN training job and return its summary payload.
+
+    Role
+    ----
+    This is the current offline training regimen behind the Lunar page. It
+    loads the selected training profile, runs the episode loop, writes JSONL
+    metrics, and emits best/latest checkpoints for later cataloging.
+    """
+
     source = Path(str(record["source_snapshot_path"])).read_text(encoding="utf-8")
     profile = load_training_profile(source)
     training = profile.training
@@ -230,6 +265,8 @@ def _run_training(job_dir: Path, record: dict[str, Any]) -> dict[str, Any]:
 
 
 def _run_evaluation(job_dir: Path, record: dict[str, Any]) -> dict[str, Any]:
+    """Evaluate one saved checkpoint over a fixed number of episodes."""
+
     checkpoint_id = str(record["target_checkpoint_id"])
     checkpoint_path = Path(str(record["target_checkpoint_path"]))
     episodes = int((record.get("params") or {}).get("episodes", 20))
