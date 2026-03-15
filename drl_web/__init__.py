@@ -5,6 +5,12 @@ sections, a filtered repository inventory, and a growing set of interactive
 demos that reinterpret older notebook material as web-native review pages.
 The same factory is used both for local development and when the lab is mounted
 under the larger AIX hub.
+
+Cross-Repo Context
+------------------
+In production, AIX no longer mounts the DRL runtime directly. Instead, AIX
+surfaces a sister-app portal that points at the standalone DRL deployment. This
+factory remains the authoritative assembly point for the DRL app itself.
 """
 
 from __future__ import annotations
