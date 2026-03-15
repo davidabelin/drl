@@ -4,6 +4,12 @@ The Lunar training playground exposes a code editor, but not an unrestricted
 Python execution environment. Users edit a fixed recipe made of three config
 objects plus one reward-shaping helper. This module owns that contract and
 turns the edited source back into a validated runtime profile for the trainer.
+
+Cross-Repo Context
+------------------
+This is the contract boundary between the DRL editor UI and the worker process.
+The job manager snapshots source strings, and the worker later reloads them
+through this module before starting training.
 """
 
 from __future__ import annotations
@@ -113,7 +119,13 @@ def shape_reward(state, action, reward, next_state, done):
 
 @dataclass(frozen=True, slots=True)
 class LunarTrainingProfile:
-    """Validated profile extracted from the editor source."""
+    """Validated profile extracted from the editor source.
+
+    Role
+    ----
+    Package the bounded editor code into a safe runtime object the worker can
+    consume without knowing anything about the original source text format.
+    """
 
     source: str
     training: dict[str, Any]
@@ -123,7 +135,13 @@ class LunarTrainingProfile:
 
 
 def _merge_dict(defaults: dict[str, Any], override: Any, *, label: str) -> dict[str, Any]:
-    """Return a validated config dictionary merged with defaults."""
+    """Return a validated config dictionary merged with defaults.
+
+    Notes
+    -----
+    Unknown keys are rejected deliberately so the playground remains a bounded
+    editing surface rather than an ad hoc configuration language.
+    """
 
     if override is None:
         return dict(defaults)
@@ -138,7 +156,13 @@ def _merge_dict(defaults: dict[str, Any], override: Any, *, label: str) -> dict[
 
 
 def _coerce_profile(training: dict[str, Any], network: dict[str, Any], epsilon: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
-    """Normalize numeric profile fields into bounded runtime values."""
+    """Normalize numeric profile fields into bounded runtime values.
+
+    Role
+    ----
+    Convert user-edited values into safe ranges before the worker commits real
+    time to a training job.
+    """
 
     training = dict(training)
     network = dict(network)
@@ -173,7 +197,13 @@ def _coerce_profile(training: dict[str, Any], network: dict[str, Any], epsilon: 
 
 
 def _validate_ast(tree: ast.Module) -> None:
-    """Reject source that escapes the bounded training contract."""
+    """Reject source that escapes the bounded training contract.
+
+    Notes
+    -----
+    The editor intentionally allows only config blocks plus a small
+    `shape_reward` function, not arbitrary Python execution.
+    """
 
     for node in ast.walk(tree):
         if isinstance(node, FORBIDDEN_AST_NODES):
@@ -201,7 +231,13 @@ def _validate_ast(tree: ast.Module) -> None:
 
 
 def load_training_profile(source: str) -> LunarTrainingProfile:
-    """Parse and validate one editor source string into a training profile."""
+    """Parse and validate one editor source string into a training profile.
+
+    Role
+    ----
+    This is the single entry point used by the DRL UI, job manager, and worker
+    whenever editable training source has to become a safe runtime profile.
+    """
 
     tree = ast.parse(source, mode="exec")
     _validate_ast(tree)
