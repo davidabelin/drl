@@ -18,7 +18,7 @@
     <div class="bg-orb bg-orb-a"></div>
     <div class="bg-orb bg-orb-b"></div>
     <header class="site-header">
-      <a class="brand" href="{{ url_for('main.home') }}">DRL Lab</a>
+      <a class="brand" href="{{ url_for('main.home') }}">DRL Labs</a>
       <nav class="site-nav">
         <a href="{{ url_for('main.home') }}">Overview</a>
         <a href="{{ url_for('main.inventory_page') }}">Inventory</a>
@@ -35,11 +35,11 @@
     <footer class="site-footer">
       <div class="footer-inner">
         <p class="footer-copy">
-          <img class="copyleft-mark" src="{{ url_for('static', filename='icons/copyleft.svg') }}" alt="" aria-hidden="true">
+          <img class="copyleft-mark" src="{{ url_for('static', filename='icons/copyleft.svg') }}" alt="" aria-hidden="true" width="16" height="16">
           <span>2026 AIX Protodyne</span>
         </p>
-        <nav class="footer-links" aria-label="AIX footer">
-          <a href="{{ aix_hub_url }}">AIX Labs</a>
+        <nav class="footer-links" aria-label="DRL footer">
+		  <a href="{{ url_for('main.home') }}">Deep Reinforcement Learning Labs</a>
         </nav>
       </div>
     </footer>

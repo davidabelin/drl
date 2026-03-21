@@ -137,8 +137,10 @@ body {
 }
 
 .copyleft-mark {
-  width: 0.95rem;
-  height: 0.95rem;
+  width: 16px;
+  height: 16px;
+  max-width: 16px;
+  max-height: 16px;
   flex: 0 0 auto;
 }
 

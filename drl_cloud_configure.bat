@@ -7,22 +7,10 @@ echo ==== DRL Cloud Configure ====
 echo Project: %PROJECT_ID%
 echo Region : %REGION%
 
-gcloud config configurations activate deeprl >nul 2>&1
-if errorlevel 1 (
-  echo.
-  echo ^> gcloud config configurations create deeprl
-  gcloud config configurations create deeprl || goto :fail
-  echo.
-  echo ^> gcloud config configurations activate deeprl
-  gcloud config configurations activate deeprl || goto :fail
-) else (
-  echo.
-  echo [OK] Activated existing gcloud configuration: deeprl
-)
-
 echo.
-echo ^> gcloud config set account davidabelin96@gmail.com
-gcloud config set account davidabelin96@gmail.com
+echo ^> gcloud config set account %SA_EMAIL%
+gcloud config set account %SA_EMAIL%
+gcloud auth activate-service-account %SA_EMAIL% --key-file=%CREDS_PATH%\deeprl-031026-dc9a9d98c6c6.json --project=%PROJECT_ID%
 if errorlevel 1 goto :fail
 echo.
 echo ^> gcloud config set project %PROJECT_ID%
