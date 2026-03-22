@@ -12,10 +12,10 @@ The canonical public DRL host is the standalone App Engine app in project
 Canonical deploy commands:
 
 ```bat
-drl_cloud_configure.bat
-drl_cloud_bootstrap.bat
-drl_cloud_deploy.bat
+scripts\drl_cloud_configure.bat
+scripts\drl_cloud_bootstrap.bat
+scripts\drl_cloud_deploy.bat
 ```
 
 Cloud Run remains available only as a legacy fallback path through
-`drl_cloudrun_deploy.bat`.
+`scripts\drl_legacy_deploy.bat`.

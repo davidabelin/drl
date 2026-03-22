@@ -1,6 +1,6 @@
-# DRL Running List of Changes To Make
+# DRL Rolling List of Changes To Make
 
-Status refresh: 2026-03-17
+Status refresh: 2026-03-22
 
 ## Legacy URL: `https://drl-web-x2ulcmhaiq-wm.a.run.app/`
 - [x] Replace the ugly generated DRL URL as the canonical entry point.
@@ -12,8 +12,19 @@ Status refresh: 2026-03-17
   - It still responds, so this is now a deployment/cloud cleanup item rather than an AIX-code item.
   - [ ] Retrieve and use the data collected from gameplay at the older "ugly" location
 
+## front page
+- []
+
 ## /lunar
-- [ ] "session was not found" now appears immediately and then every few steps thereafter running Lunar demo. Both Machine Play and Human Play are effected. Repeatedly hitting "Run" or "Step" works a few steps at a time (or with Human, same with any key strike: intermittent response, mostly "session not found"). Did not used to be this way before the changeover from https://drl-web-83735348592.us-west3.run.app/lunar (which is still up, and doesn't have this problem)
-  - [ ] Examine.
-  - [ ] Discuss.
-  - [ ] Fix.
+- [ ] Fix the App Engine lunar live-play regression.
+  - Symptom: the canonical App Engine host is slower/clunkier than Cloud Run and intermittently returns `session was not found` during both Human Play and Machine Play.
+  - [x] Examine.
+  - [x] Discuss.
+  - [x] Confirm the repo stores live Lunar sessions in process-local memory (`LunarSessionManager._sessions`), so requests that land on a different App Engine instance cannot see the same session.
+  - [x] Confirm the current public App Engine host reproduces the issue, while the legacy Cloud Run hosts do not.
+  - [x] Commit the first App Engine mitigation in `app.yaml`: enable session affinity, pin the service to one instance, and request more realistic CPU/RAM for the Gym/Torch runtime.
+  - [ ] Redeploy App Engine and verify Human Play and Machine Play both stay on one session without intermittent 404s.
+  - [ ] If playback still feels too slow after the session fix, reduce per-step round-trip cost or move live session state to a shared backend.
+
+##  /finance
+- []
