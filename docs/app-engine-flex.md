@@ -9,7 +9,7 @@ Canonical standalone DRL deploy now targets App Engine flexible in project
 - [x] The container runtime remains the source of truth via `Dockerfile`
 - [x] `requirements.appengine.txt` pins the CPU-only PyTorch wheel
 - [x] The canonical public host is `https://deeprl-031026.wm.r.appspot.com`
-- [x] The expected `drl_cloud_bootstrap.bat` command is available again under `scripts/`
+- [x] The normal App Engine publish script and legacy support scripts are present under `scripts/`
 - [ ] Live Lunar sessions are fully production-ready on App Engine without additional verification
 
 ## Runtime shape
@@ -22,12 +22,18 @@ Canonical standalone DRL deploy now targets App Engine flexible in project
 - `AIX_HUB_URL` points back to `https://aix-labs.uw.r.appspot.com/`
 - `APP_BASE_PATH` stays unset for the standalone host
 
-## Quick path
+## Normal path
 
 ```bat
+scripts\drl_appengine_publish.bat
+```
+
+## Occasional support
+
+```bat
+scripts\drl_cloud_status.bat
 scripts\drl_cloud_configure.bat
-scripts\drl_cloud_bootstrap.bat
-scripts\drl_cloud_deploy.bat
+scripts\drl_legacy_cloud_setup.bat
 ```
 
 ## Expected public host

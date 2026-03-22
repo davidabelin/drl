@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Baskervville:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
     <script>
-      window.__AIX_HUB_URL__ = {{ aix_hub_url|tojson }};
-      window.__APP_BASE_PATH__ = {{ app_base_path|tojson }};
+      window.__AIX_HUB_URL__ = "{{ aix_hub_url|tojson }}";
+      window.__APP_BASE_PATH__ = "{{ app_base_path|tojson }}";
     </script>
   </head>
   <body>

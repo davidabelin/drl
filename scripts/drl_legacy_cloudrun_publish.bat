@@ -7,7 +7,7 @@ if errorlevel 1 goto :fail
 set "SOURCE_DIR=%CD%"
 
 echo.
-echo ==== DRL Legacy Cloud Run Deploy ====
+echo ==== DRL Cloud Run Publish ====
 echo Project : %PROJECT_ID%
 echo Region  : %REGION%
 echo Service : %SERVICE_NAME%
@@ -25,7 +25,7 @@ call gcloud run services describe %SERVICE_NAME% --project="%PROJECT_ID%" --regi
 if errorlevel 1 goto :fail_popd
 
 echo.
-echo [OK] Legacy Cloud Run deploy finished.
+echo [OK] Cloud Run publish finished.
 popd >nul
 endlocal
 exit /b 0
@@ -35,6 +35,6 @@ popd >nul
 
 :fail
 echo.
-echo [ERROR] Legacy Cloud Run deploy failed.
+echo [ERROR] Cloud Run publish failed.
 endlocal
 exit /b 1

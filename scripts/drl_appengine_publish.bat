@@ -8,7 +8,7 @@ pushd "%REPO_DIR%" >nul 2>&1
 if errorlevel 1 goto :fail
 
 echo.
-echo ==== DRL App Engine Deploy ====
+echo ==== DRL App Engine Publish ====
 echo Project : %PROJECT_ID%
 echo Region  : %APP_ENGINE_LOCATION%
 echo URL     : %CANONICAL_DRL_URL%
@@ -40,7 +40,7 @@ if errorlevel 1 (
 )
 
 echo.
-set "FAILED_STEP=deploy app.yaml to App Engine"
+set "FAILED_STEP=publish app.yaml to App Engine"
 set "FAILED_COMMAND=gcloud app deploy app.yaml --project=""%PROJECT_ID%"" --quiet"
 echo ^> gcloud app deploy app.yaml --project="%PROJECT_ID%" --quiet
 call gcloud app deploy app.yaml --project="%PROJECT_ID%" --quiet
@@ -61,7 +61,7 @@ call gcloud app versions list --project="%PROJECT_ID%"
 if errorlevel 1 goto :fail_popd
 
 echo.
-echo [OK] Canonical App Engine deploy finished.
+echo [OK] Canonical App Engine publish finished.
 popd >nul
 endlocal
 exit /b 0
@@ -76,15 +76,16 @@ set "FAILED_CODE=%errorlevel%"
 
 :fail_report
 echo.
-echo [ERROR] Deploy failed.
+echo [ERROR] App Engine publish failed.
 echo [ERROR] Step   : %FAILED_STEP%
 echo [ERROR] Command: %FAILED_COMMAND%
 echo [ERROR] Exit   : %FAILED_CODE%
 echo.
 echo Suggested next checks:
 echo   1. Run scripts\drl_cloud_configure.bat
-echo   2. Run scripts\drl_cloud_status.bat
-echo   3. Verify billing, enabled APIs, and App Engine permissions in %PROJECT_ID%
-echo   4. Re-run the command above manually if you need the full gcloud error in isolation
+echo   2. Run scripts\drl_legacy_cloud_setup.bat
+echo   3. Run scripts\drl_cloud_status.bat
+echo   4. Verify billing, enabled APIs, and App Engine permissions in %PROJECT_ID%
+echo   5. Re-run the command above manually if you need the full gcloud error in isolation
 endlocal
 exit /b %FAILED_CODE%

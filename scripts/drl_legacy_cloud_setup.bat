@@ -3,7 +3,7 @@ setlocal
 call "%~dp0drl_cloud_env.bat"
 
 echo.
-echo ==== DRL Cloud Bootstrap ====
+echo ==== DRL Cloud Setup ====
 echo Project : %PROJECT_ID%
 echo Region  : %REGION%
 echo AE Loc  : %APP_ENGINE_LOCATION%
@@ -61,12 +61,12 @@ call gcloud storage buckets describe gs://%BUCKET_NAME% --format="yaml(name,loca
 if errorlevel 1 goto :fail
 
 echo.
-echo [OK] Bootstrap finished.
+echo [OK] Cloud setup finished.
 endlocal
 exit /b 0
 
 :fail
 echo.
-echo [ERROR] Bootstrap failed.
+echo [ERROR] Cloud setup failed.
 endlocal
 exit /b 1
