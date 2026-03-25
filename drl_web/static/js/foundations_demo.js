@@ -66,11 +66,17 @@
 
   function renderGrid(payload) {
     const highlighted = new Set(payload.path_states)
+    const pathOrder = new Map(payload.path_states.map((state, index) => [state, index]))
     gridworld.innerHTML = payload.grid
       .map((cell) => {
         const typeClass =
           cell.cell === "G" ? "goal" : cell.cell === "H" ? "hole" : cell.index === 0 ? "start" : "floor"
         const pathClass = highlighted.has(cell.index) ? " path-active" : ""
+        const stepIndex = pathOrder.get(cell.index)
+        const stepBadge =
+          stepIndex === undefined
+            ? ""
+            : `<span class="path-step">${stepIndex === 0 ? "Start" : `Step ${stepIndex}`}</span>`
         const action = cell.best_action_arrow || cell.cell
         const caption =
           cell.cell === "G"
@@ -87,6 +93,7 @@
               <span class="tile-badge">${cell.cell}</span>
               <span class="arrow-badge">${action}</span>
             </div>
+            ${stepBadge}
             <strong>${Number(cell.value).toFixed(3)}</strong>
             <span class="grid-caption">${caption}</span>
           </article>
@@ -98,6 +105,7 @@
   function renderPath(payload) {
     const indexLookup = Object.fromEntries(payload.grid.map((cell) => [cell.index, cell]))
     const destination = indexLookup[payload.path_states[payload.path_states.length - 1]]
+    const stepCount = Math.max(payload.path_states.length - 1, 0)
     const status =
       destination && destination.cell === "G"
         ? "The greedy path reaches the goal."
@@ -110,7 +118,7 @@
       : '<span class="path-chip">Stay put</span>'
 
     pathStrip.innerHTML = `<span class="path-chip path-chip-start">Start</span>${steps}`
-    pathSummary.textContent = status
+    pathSummary.textContent = `${status} Current trace length: ${stepCount} decisions.`
   }
 
   function render(payload) {

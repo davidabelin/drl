@@ -142,7 +142,10 @@ def _build_finance_demo_fallback(*, liquidation_days: int, num_trades: int, risk
             "body": _finance_story(first_trade_fraction, risk_aversion),
         },
         "source_mode": "fallback",
-        "source_note": "Archive module unavailable in this runtime, so the demo is using a faithful approximation of the same trade-offs.",
+        "source_note": (
+            "Archive module unavailable in this runtime, so the demo is using a faithful approximation of the same trade-offs. "
+            "It still represents the benchmark behavior a learned execution policy would try to reproduce."
+        ),
     }
 
 
@@ -300,7 +303,10 @@ def build_finance_demo(*, liquidation_days: int, num_trades: int, risk_aversion:
             "body": _finance_story(first_trade_fraction, risk_aversion),
         },
         "source_mode": "archive",
-        "source_note": "Using the archived Almgren-Chriss simulator from source-material/finance/syntheticChrissAlmgren.py.",
+        "source_note": (
+            "Using the archived Almgren-Chriss simulator from source-material/finance/syntheticChrissAlmgren.py. "
+            "This is the analytical benchmark the notebook later compares against learned actor-critic execution."
+        ),
     }
 
 

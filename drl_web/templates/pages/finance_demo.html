@@ -6,7 +6,8 @@
   <h1>Interactive demo: selling a large position without crushing the price</h1>
   <p class="lede">
     This page turns the old Almgren-Chriss finance work into a no-code demo. Move the sliders and watch how an execution plan changes when patience,
-    urgency, and market impact pull against each other.
+    urgency, and market impact pull against each other. It shows the benchmark behavior first so the finance trade-off is legible before actor-critic
+    training enters the picture.
   </p>
   <div class="hero-actions">
     <a class="btn btn-primary" href="{{ url_for('main.section_page', slug=section.slug) }}">Review finance assets</a>
@@ -88,7 +89,7 @@
 
       <article class="demo-note">
         <strong>How to read this</strong>
-        <p>The bars show how many shares get sold each step. The line shows how much inventory remains. The frontier compares impact cost against risk.</p>
+        <p>The bars show how a block trade gets sliced over time. The line shows remaining inventory. The frontier compares impact cost against price risk, which is the balance a learned execution policy would try to manage.</p>
       </article>
 
       <article class="demo-note" id="financeSourceNote">
@@ -156,6 +157,30 @@
           <p>A good strategy balances those two forces instead of optimizing only one.</p>
         </article>
       </div>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">RL Translation</p>
+          <h2>How this becomes a learning problem</h2>
+        </div>
+      </div>
+      <div class="callout-grid demo-callout-grid">
+        <article class="callout callout-live">
+          <h3>State</h3>
+          <p>The notebook frames each decision around remaining inventory, time left to liquidate, and recent price behavior.</p>
+        </article>
+        <article class="callout callout-legacy">
+          <h3>Action</h3>
+          <p>The policy chooses how much of the remaining position to sell now instead of waiting for later trades.</p>
+        </article>
+        <article class="callout callout-archive">
+          <h3>Reward</h3>
+          <p>Good behavior reduces implementation shortfall while controlling the risk of adverse price moves before the order is finished.</p>
+        </article>
+      </div>
+      <p class="panel-note">This page is intentionally benchmark-first. The analytical Almgren-Chriss schedule is the target behavior a learned actor-critic policy would try to imitate or improve on.</p>
     </article>
 
     <article class="panel chart-card">

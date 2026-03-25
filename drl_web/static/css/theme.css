@@ -683,6 +683,34 @@ code {
     0 0 0 3px rgba(51, 95, 139, 0.09);
 }
 
+.path-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  width: fit-content;
+  padding: 0.14rem 0.48rem;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 151, 216, 0.18);
+  background: rgba(216, 245, 255, 0.92);
+  color: #15435e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.grid-cell.goal .path-step {
+  background: rgba(226, 248, 240, 0.94);
+  border-color: rgba(18, 110, 97, 0.18);
+  color: #165747;
+}
+
+.grid-cell.hole .path-step {
+  background: rgba(255, 240, 232, 0.94);
+  border-color: rgba(201, 101, 55, 0.18);
+  color: #8a4a29;
+}
+
 .grid-cell.goal {
   border-color: rgba(17, 151, 216, 0.26);
 }
