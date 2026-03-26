@@ -1,6 +1,12 @@
 @echo off
+if /i "%~1"=="--help" goto :help
+if /i "%~1"=="-h" goto :help
+if "%~1"=="/?" goto :help
+
 setlocal
 call "%~dp0drl_cloud_env.bat"
+
+rem Resolve the repo root from the script location so the command works from any current directory.
 for %%I in ("%~dp0..") do set "REPO_DIR=%%~fI"
 set "FAILED_STEP=change to repo directory"
 set "FAILED_COMMAND=pushd ""%REPO_DIR%"""
@@ -15,6 +21,7 @@ echo URL     : %CANONICAL_DRL_URL%
 echo Script  : %~f0
 echo Repo Dir: %CD%
 
+rem Probe first so an initial deploy can create the App Engine app instead of failing immediately.
 echo.
 echo [INFO] Checking whether the App Engine app already exists...
 echo [INFO] This probe can take a minute if gcloud is refreshing auth or contacting App Engine.
@@ -89,3 +96,25 @@ echo   4. Verify billing, enabled APIs, and App Engine permissions in %PROJECT_I
 echo   5. Re-run the command above manually if you need the full gcloud error in isolation
 endlocal
 exit /b %FAILED_CODE%
+
+:help
+echo.
+echo DRL App Engine Publish
+echo.
+echo Usage:
+echo   scripts\drl_appengine_publish.bat
+echo.
+echo What it does:
+echo   Deploys app.yaml to the canonical App Engine service for this repo, creating the
+echo   App Engine application first if it does not already exist.
+echo.
+echo When to use it:
+echo   - For the current canonical DRL web deploy.
+echo   - After changing app code, static assets, or app.yaml for the App Engine target.
+echo.
+echo Recommended order:
+echo   1. scripts\drl_cloud_configure.bat
+echo   2. scripts\drl_legacy_cloud_setup.bat
+echo   3. scripts\drl_appengine_publish.bat
+echo   4. scripts\drl_cloud_status.bat
+exit /b 0

@@ -4,13 +4,13 @@ Status refresh: 2026-03-25
 
 ## Quick and Easy
 - [ ] Retire or redirect the legacy Cloud Run URL if it is no longer intended to be public.
-- [x] Write `docs\LUNAR_PLAN_beta.md` for machine continuous control.
+- [] Plan in `docs\LUNAR_PLAN_beta.md` for machine continuous control.
 - [x] Highlight the ML-chosen path in `/foundations` Frozen Lake.
 - [x] Improve the `/finance` explanations so they relate more clearly to finance and to what the ML is doing.
-- [x] Discuss or shortlist additional interactive labs for `/sections/value-based`.
+- [] Discuss or shortlist additional interactive labs for `/sections/value-based`.
 - [x] Assess whether the Bananas project(s) are worth reviving.
-- [x] Choose the turn-based multi-agent game.
-- [x] Plan the multi-agent RL demo implementation.
+- [] Choose the turn-based multi-agent game.
+- [] Plan the multi-agent RL demo implementation.
 - [ ] Hard-delete any `scripts\*.bat` files no longer needed.
   - Current assessment: no safe deletions yet; each current `.bat` file still has a distinct role or is referenced by docs/scripts.
 
@@ -48,7 +48,7 @@ Status refresh: 2026-03-25
   - [_] If playback still feels too slow after the session fix, reduce per-step round-trip cost or move live session state to a shared backend.
 - [] **Continuous control**
   - [] human cc first
-  - [x] machine cc implementation plan as `docs\LUNAR_PLAN_beta.md`
+  - [] machine cc implementation plan as `docs\LUNAR_PLAN_beta.md`
   - [] implement cc ml
 
 ## /foundations
@@ -69,13 +69,17 @@ Status refresh: 2026-03-25
 
 ## Multi-agent Gameplay -- *high priority*
 - [x] Made a **priority**
-  - experience to be used for another project
+  - experience to be used for another project (`Clue`, but want easier than `Clue` here)
 - [] Design a turn-based multi-player game as RL demo
-  - [x] choose a game: `Connect Four`
-  - [x] plan implementation in `docs\multi-agent-turn-based-plan.md`
+  - [] choose a game: **not**`Connect Four`, not poker
+  - [] PLAN implementation in `docs\multi-agent-turn-based-plan.md`
   - [] implement 
 
 ## Scripts
+- [x] Intro and in-line documentation for each script file
 - [] Hard-delete any scripts\*.bat no longer needed
   - current assessment: no safe deletions yet; revisit after the legacy Cloud Run decision
 - [] condense everything into 4 regular-use files, to: set env, show status, configure drl env, deploy drl web app
+
+## Reacher-like lab: self-play learning example
+- [] Does not have to be Reacher or use the Reacher env; something *similar* and implementable in *any* easier way

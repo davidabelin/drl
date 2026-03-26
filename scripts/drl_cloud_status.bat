@@ -1,5 +1,14 @@
 @echo off
+if /i "%~1"=="--help" goto :help
+if /i "%~1"=="-h" goto :help
+if "%~1"=="/?" goto :help
+
 setlocal
+
+rem Read-only status sweep for the DRL Google Cloud project.
+rem Usage: scripts\drl_cloud_status.bat
+rem Run this after configure/setup or whenever a deploy needs investigation.
+
 call "%~dp0drl_cloud_env.bat"
 
 echo.
@@ -73,3 +82,23 @@ echo.
 echo [ERROR] One of the required gcloud commands failed.
 endlocal
 exit /b 1
+
+:help
+echo.
+echo DRL Cloud Status
+echo.
+echo Usage:
+echo   scripts\drl_cloud_status.bat
+echo.
+echo What it does:
+echo   Runs a read-only inspection of auth, project config, billing, enabled APIs, IAM,
+echo   service-account keys, buckets, Artifact Registry, Cloud Run, App Engine, and secrets.
+echo.
+echo When to use it:
+echo   - Before deploying, to confirm the active account and project are correct.
+echo   - After a setup or deploy failure, to see what cloud resources already exist.
+echo.
+echo Prerequisites:
+echo   - gcloud is installed
+echo   - You have valid auth, usually via scripts\drl_cloud_configure.bat
+exit /b 0
