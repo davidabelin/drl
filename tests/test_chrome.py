@@ -5,7 +5,7 @@ import pytest
 from drl_web import create_app
 
 
-@pytest.mark.parametrize("path", ["/", "/inventory", "/lunar"])
+@pytest.mark.parametrize("path", ["/", "/inventory", "/lunar", "/grabber"])
 def test_base_chrome_uses_aix_labs_label_and_footer(path: str):
     app = create_app(
         {

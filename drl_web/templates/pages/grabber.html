@@ -1,0 +1,395 @@
+{% extends "base.html" %}
+{% block title %}DRL Lab | Grabber{% endblock %}
+{% block content %}
+<section class="hero grabber-hero">
+  <div class="grabber-hero-copy">
+    <p class="eyebrow">Continuous Control Recovery Track</p>
+    <h1>Grabber: a browser-native 2D arm that learns to grab a coin and carry it home</h1>
+    <p class="lede">
+      Grabber is the live continuous-control lane for DRL: human play, PPO checkpoint playback, and a structured training workflow with learning-timeline snapshots.
+      It keeps the Reacher lineage visible without depending on the legacy Unity runtime.
+    </p>
+  </div>
+  <div class="grabber-hero-side">
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{{ url_for('main.section_page', slug='continuous-control') }}">Back to Continuous Control</a>
+      <a class="btn btn-secondary" href="{{ url_for('main.section_page', slug='archive') }}">View Archive Context</a>
+    </div>
+    <div class="chip-row">
+      <span class="chip">Custom 2D task</span>
+      <span class="chip chip-muted">PPO + timeline snapshots</span>
+    </div>
+  </div>
+</section>
+
+{% if not grabber_runtime.available %}
+<section class="section-block">
+  <article class="callout callout-legacy">
+    <h2>Grabber runtime unavailable</h2>
+    <p>{{ grabber_runtime.reason }}</p>
+  </article>
+</section>
+{% else %}
+<section
+  class="section-block"
+  id="grabber-page"
+  data-create-session-url="{{ url_for('main.grabber_create_session') }}"
+  data-step-session-template="{{ url_for('main.grabber_step_session', session_id='SESSION_ID') }}"
+  data-reset-session-template="{{ url_for('main.grabber_reset_session', session_id='SESSION_ID') }}"
+  data-delete-session-template="{{ url_for('main.grabber_delete_session', session_id='SESSION_ID') }}"
+  data-checkpoints-url="{{ url_for('main.grabber_list_checkpoints') }}"
+  data-checkpoint-summary-template="{{ url_for('main.grabber_checkpoint_summary', checkpoint_id='CHECKPOINT_ID') }}"
+  data-jobs-url="{{ url_for('main.grabber_create_job') }}"
+  data-jobs-list-url="{{ url_for('main.grabber_list_jobs') }}"
+  data-job-template="{{ url_for('main.grabber_get_job', job_id=999999) }}"
+  data-timeline-template="{{ url_for('main.grabber_get_timeline', job_id=999999) }}"
+  data-timeline-snapshot-template="{{ url_for('main.grabber_get_timeline_snapshot', job_id=999999, snapshot_id='SNAPSHOT_ID') }}"
+>
+  <div class="tab-strip" role="tablist" aria-label="Grabber tabs">
+    <button class="tab-btn is-active" type="button" data-tab="play">Play</button>
+    <button class="tab-btn" type="button" data-tab="machine">Machine Play</button>
+    <button class="tab-btn" type="button" data-tab="training">Training</button>
+  </div>
+
+  <div class="grabber-layout">
+    <div class="grabber-stage">
+      <article class="panel stage-panel">
+        <div class="stage-head">
+          <div>
+            <p class="eyebrow" data-stage-eyebrow>Human Control</p>
+            <h2 data-stage-title>Drive the arm with continuous shoulder, elbow, and grip control</h2>
+          </div>
+          <div class="chip-row">
+            <span class="chip" data-runtime-status>Runtime ready</span>
+          </div>
+        </div>
+        <div class="stage-screen grabber-screen">
+          <canvas class="stage-canvas" id="grabberStageCanvas" width="960" height="540" aria-label="Grabber stage"></canvas>
+        </div>
+        <p class="panel-note" id="grabberStageStatus">Create a session to begin.</p>
+      </article>
+
+      <article class="panel tab-panel is-active" data-panel="play">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Play</p>
+            <h2>Hold keys to push the three control axes continuously</h2>
+          </div>
+        </div>
+        <p class="panel-note">Keyboard: `A/D` shoulder, `J/L` elbow, `W/S` grip close/open. Hold the keys to keep stepping.</p>
+        <div class="lunar-controls">
+          <button class="btn btn-primary" type="button" id="playNewSessionBtn">New session</button>
+          <button class="btn btn-secondary" type="button" id="playResetBtn">Reset</button>
+        </div>
+        <div class="control-cluster">
+          <article class="control-group">
+            <p class="metric-label">Shoulder</p>
+            <div class="lunar-controls">
+              <button class="btn btn-secondary hold-btn" type="button" data-axis="0" data-value="-1">A</button>
+              <button class="btn btn-secondary hold-btn" type="button" data-axis="0" data-value="1">D</button>
+            </div>
+          </article>
+          <article class="control-group">
+            <p class="metric-label">Elbow</p>
+            <div class="lunar-controls">
+              <button class="btn btn-secondary hold-btn" type="button" data-axis="1" data-value="-1">J</button>
+              <button class="btn btn-secondary hold-btn" type="button" data-axis="1" data-value="1">L</button>
+            </div>
+          </article>
+          <article class="control-group">
+            <p class="metric-label">Grip</p>
+            <div class="lunar-controls">
+              <button class="btn btn-secondary hold-btn" type="button" data-axis="2" data-value="-1">W close</button>
+              <button class="btn btn-secondary hold-btn" type="button" data-axis="2" data-value="1">S open</button>
+            </div>
+          </article>
+        </div>
+      </article>
+
+      <article class="panel tab-panel" data-panel="machine">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Machine Play</p>
+            <h2>Inspect PPO checkpoints and learning snapshots on the same task</h2>
+          </div>
+        </div>
+        <div class="stack-links">
+          <label class="field-stack">
+            <span>Controller</span>
+            <select id="checkpointSelect"></select>
+          </label>
+          <label class="field-stack">
+            <span>Playback speed</span>
+            <input id="machineSpeed" type="range" min="1" max="14" step="1" value="7">
+          </label>
+        </div>
+        <div class="lunar-controls">
+          <button class="btn btn-primary" type="button" id="machineCreateBtn">Load controller</button>
+          <button class="btn btn-secondary" type="button" id="machineRunBtn">Run</button>
+          <button class="btn btn-secondary" type="button" id="machinePauseBtn">Pause</button>
+          <button class="btn btn-secondary" type="button" id="machineStepBtn">Step</button>
+          <button class="btn btn-secondary" type="button" id="machineResetBtn">Reset</button>
+        </div>
+        <p class="panel-note" id="checkpointSummary">Train or load a checkpoint to inspect it here.</p>
+      </article>
+
+      <article class="panel tab-panel" data-panel="training">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Training</p>
+            <h2>Bounded environment, reward, and PPO controls</h2>
+          </div>
+        </div>
+        <div class="grabber-form-grid">
+          <article class="config-card">
+            <p class="card-kicker">Environment</p>
+            <div class="config-fields">
+              <label class="field-stack"><span>Seed</span><input data-config-path="environment.seed" type="number" value="{{ training_form.environment.seed }}"></label>
+              <label class="field-stack"><span>Max steps</span><input data-config-path="environment.max_steps" type="number" value="{{ training_form.environment.max_steps }}"></label>
+              <label class="field-stack"><span>Coin spawn radius</span><input data-config-path="environment.coin_spawn_radius" type="number" step="0.01" value="{{ training_form.environment.coin_spawn_radius }}"></label>
+              <label class="field-stack"><span>Home zone radius</span><input data-config-path="environment.home_zone_radius" type="number" step="0.01" value="{{ training_form.environment.home_zone_radius }}"></label>
+              <label class="field-stack"><span>Shoulder speed cap</span><input data-config-path="environment.shoulder_speed" type="number" step="0.01" value="{{ training_form.environment.shoulder_speed }}"></label>
+              <label class="field-stack"><span>Elbow speed cap</span><input data-config-path="environment.elbow_speed" type="number" step="0.01" value="{{ training_form.environment.elbow_speed }}"></label>
+              <label class="field-stack"><span>Grip speed cap</span><input data-config-path="environment.grip_speed" type="number" step="0.01" value="{{ training_form.environment.grip_speed }}"></label>
+              <label class="field-stack"><span>Return dwell steps</span><input data-config-path="environment.return_dwell_steps" type="number" value="{{ training_form.environment.return_dwell_steps }}"></label>
+            </div>
+          </article>
+
+          <article class="config-card">
+            <p class="card-kicker">Reward</p>
+            <div class="config-fields">
+              <label class="field-stack"><span>Approach weight</span><input data-config-path="reward.approach_weight" type="number" step="0.01" value="{{ training_form.reward.approach_weight }}"></label>
+              <label class="field-stack"><span>Latch bonus</span><input data-config-path="reward.latch_bonus" type="number" step="0.01" value="{{ training_form.reward.latch_bonus }}"></label>
+              <label class="field-stack"><span>Carry weight</span><input data-config-path="reward.carry_weight" type="number" step="0.01" value="{{ training_form.reward.carry_weight }}"></label>
+              <label class="field-stack"><span>Home hold bonus</span><input data-config-path="reward.home_hold_bonus" type="number" step="0.01" value="{{ training_form.reward.home_hold_bonus }}"></label>
+              <label class="field-stack"><span>Success bonus</span><input data-config-path="reward.success_bonus" type="number" step="0.01" value="{{ training_form.reward.success_bonus }}"></label>
+              <label class="field-stack"><span>Action penalty</span><input data-config-path="reward.action_penalty" type="number" step="0.001" value="{{ training_form.reward.action_penalty }}"></label>
+              <label class="field-stack"><span>Action-change penalty</span><input data-config-path="reward.action_change_penalty" type="number" step="0.001" value="{{ training_form.reward.action_change_penalty }}"></label>
+              <label class="field-stack"><span>Drop penalty</span><input data-config-path="reward.drop_penalty" type="number" step="0.01" value="{{ training_form.reward.drop_penalty }}"></label>
+            </div>
+          </article>
+
+          <article class="config-card">
+            <p class="card-kicker">PPO</p>
+            <div class="config-fields">
+              <label class="field-stack"><span>Total updates</span><input data-config-path="ppo.total_updates" type="number" value="{{ training_form.ppo.total_updates }}"></label>
+              <label class="field-stack"><span>Rollout horizon</span><input data-config-path="ppo.rollout_horizon" type="number" value="{{ training_form.ppo.rollout_horizon }}"></label>
+              <label class="field-stack"><span>Parallel envs</span><input data-config-path="ppo.num_envs" type="number" value="{{ training_form.ppo.num_envs }}"></label>
+              <label class="field-stack"><span>Learning rate</span><input data-config-path="ppo.learning_rate" type="number" step="0.00001" value="{{ training_form.ppo.learning_rate }}"></label>
+              <label class="field-stack"><span>Gamma</span><input data-config-path="ppo.gamma" type="number" step="0.001" value="{{ training_form.ppo.gamma }}"></label>
+              <label class="field-stack"><span>GAE lambda</span><input data-config-path="ppo.gae_lambda" type="number" step="0.001" value="{{ training_form.ppo.gae_lambda }}"></label>
+              <label class="field-stack"><span>Clip epsilon</span><input data-config-path="ppo.clip_epsilon" type="number" step="0.01" value="{{ training_form.ppo.clip_epsilon }}"></label>
+              <label class="field-stack"><span>Entropy coeff</span><input data-config-path="ppo.entropy_coeff" type="number" step="0.001" value="{{ training_form.ppo.entropy_coeff }}"></label>
+              <label class="field-stack"><span>Value coeff</span><input data-config-path="ppo.value_coeff" type="number" step="0.01" value="{{ training_form.ppo.value_coeff }}"></label>
+              <label class="field-stack"><span>Minibatches</span><input data-config-path="ppo.minibatches" type="number" value="{{ training_form.ppo.minibatches }}"></label>
+              <label class="field-stack"><span>Epochs</span><input data-config-path="ppo.epochs" type="number" value="{{ training_form.ppo.epochs }}"></label>
+              <label class="field-stack"><span>Hidden size A</span><input data-config-path="ppo.hidden_sizes.0" type="number" value="{{ training_form.ppo.hidden_sizes[0] }}"></label>
+              <label class="field-stack"><span>Hidden size B</span><input data-config-path="ppo.hidden_sizes.1" type="number" value="{{ training_form.ppo.hidden_sizes[1] }}"></label>
+            </div>
+          </article>
+        </div>
+        <div class="lunar-controls">
+          <button class="btn btn-primary" type="button" id="trainSubmitBtn">Start training job</button>
+          <button class="btn btn-secondary" type="button" id="trainingResetBtn">Reset defaults</button>
+          <button class="btn btn-secondary" type="button" id="evaluateCheckpointBtn">Evaluate selected checkpoint</button>
+        </div>
+
+        <div class="timeline-shell">
+          <div class="section-head compact">
+            <div>
+              <p class="eyebrow">Learning Timeline</p>
+              <h2>Replay saved training milestones</h2>
+            </div>
+          </div>
+          <div class="job-list" id="timelineList"></div>
+          <div class="timeline-controls">
+            <input id="timelineScrubber" type="range" min="0" max="0" step="1" value="0">
+            <div class="lunar-controls">
+              <button class="btn btn-secondary" type="button" id="timelinePlayBtn">Play</button>
+              <button class="btn btn-secondary" type="button" id="timelinePauseBtn">Pause</button>
+            </div>
+          </div>
+          <p class="panel-note" id="timelineStatus">Choose a completed training job to inspect its timeline snapshots.</p>
+        </div>
+      </article>
+
+      <article class="panel lunar-jobs-panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Jobs</p>
+            <h2>Recent training and evaluation runs</h2>
+          </div>
+        </div>
+        <div class="job-list" id="jobList"></div>
+        <pre class="log-viewer" id="jobLogViewer">No job selected.</pre>
+      </article>
+    </div>
+
+    <aside class="grabber-sidebar">
+      <article class="panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Live Telemetry</p>
+            <h2>Current episode state</h2>
+          </div>
+        </div>
+        <div class="mini-grid">
+          <article class="mini-card"><span class="metric-label">Step</span><strong data-telemetry="step_index">0</strong></article>
+          <article class="mini-card"><span class="metric-label">Reward</span><strong data-telemetry="reward">0.0</strong></article>
+          <article class="mini-card"><span class="metric-label">Score</span><strong data-telemetry="score">0.0</strong></article>
+          <article class="mini-card"><span class="metric-label">Held</span><strong data-telemetry="held">false</strong></article>
+          <article class="mini-card"><span class="metric-label">Done</span><strong data-telemetry="done">false</strong></article>
+          <article class="mini-card"><span class="metric-label">Reason</span><strong data-telemetry="done_reason">running</strong></article>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">DOF Gauges</p>
+            <h2>Signed control usage by axis</h2>
+          </div>
+        </div>
+        <div class="gauge-stack" id="dofGaugeStack">
+          <article class="dof-gauge dof-gauge-shoulder" data-gauge-index="0">
+            <div class="gauge-head"><span>Shoulder</span><strong data-gauge-value="0">0.00</strong></div>
+            <div class="gauge-track"><span class="gauge-fill" data-gauge-fill="0"></span></div>
+          </article>
+          <article class="dof-gauge dof-gauge-elbow" data-gauge-index="1">
+            <div class="gauge-head"><span>Elbow</span><strong data-gauge-value="1">0.00</strong></div>
+            <div class="gauge-track"><span class="gauge-fill" data-gauge-fill="1"></span></div>
+          </article>
+          <article class="dof-gauge dof-gauge-grip" data-gauge-index="2">
+            <div class="gauge-head"><span>Grip</span><strong data-gauge-value="2">0.00</strong></div>
+            <div class="gauge-track"><span class="gauge-fill" data-gauge-fill="2"></span></div>
+          </article>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Reward Terms</p>
+            <h2>What the episode paid this step</h2>
+          </div>
+        </div>
+        <div class="state-grid" id="rewardGrid"></div>
+      </article>
+
+      <article class="panel">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Observation Vector</p>
+            <h2>The 18 numbers the policy sees</h2>
+          </div>
+        </div>
+        <div class="state-grid" id="observationGrid"></div>
+      </article>
+    </aside>
+  </div>
+</section>
+{% endif %}
+
+<section class="section-block">
+  <div class="section-head">
+    <div>
+      <p class="eyebrow">Curator Guide</p>
+      <h2>{{ guide.overview_title }}</h2>
+    </div>
+  </div>
+  <p class="lede">{{ guide.overview_body }}</p>
+  <div class="card-grid top-gap">
+    {% for card in guide.cards %}
+    <article class="card">
+      <p class="card-kicker">{{ card.kicker }}</p>
+      <h3>{{ card.title }}</h3>
+      <p>{{ card.body }}</p>
+      {% if card.points %}
+      <ul class="clean-list compact-list">
+        {% for point in card.points %}
+        <li>{{ point }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="detail-layout detail-layout-demo">
+  <div class="detail-main">
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Source Trail</p>
+          <h2>What this page is preserving</h2>
+        </div>
+      </div>
+      <div class="asset-list">
+        {% for ref in guide.source_refs %}
+        <article class="asset-card">
+          <div class="asset-head">
+            <h3>{{ ref.label }}</h3>
+            <span class="asset-kind">{{ ref.kind }}</span>
+          </div>
+          <p>{{ ref.note }}</p>
+          <code>{{ ref.path }}</code>
+        </article>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+
+  <aside class="detail-sidebar">
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">Glossary</p>
+          <h2>Terms to keep visible</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for term in guide.glossary %}
+        <li><strong>{{ term.term }}:</strong> {{ term.meaning }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">This Page Keeps</p>
+          <h2>Live now</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for item in guide.keeps %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+
+    <article class="panel">
+      <div class="section-head compact">
+        <div>
+          <p class="eyebrow">This Page Omits</p>
+          <h2>Still archive-first</h2>
+        </div>
+      </div>
+      <ul class="clean-list">
+        {% for item in guide.omits %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </article>
+  </aside>
+</section>
+{% endblock %}
+{% block scripts %}
+{% if grabber_runtime.available %}
+<script id="grabber-checkpoints-seed" type="application/json">{{ checkpoints|tojson }}</script>
+<script id="grabber-jobs-seed" type="application/json">{{ jobs|tojson }}</script>
+<script id="grabber-training-form-seed" type="application/json">{{ training_form|tojson }}</script>
+<script src="{{ url_for('static', filename='js/grabber_page.js') }}" defer></script>
+{% endif %}
+{% endblock %}

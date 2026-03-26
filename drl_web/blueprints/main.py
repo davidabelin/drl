@@ -30,6 +30,7 @@ from drl_web.demo_services import (
     finance_presets,
     foundations_presets,
 )
+from drl_web.grabber_profiles import DEFAULT_TRAINING_FORM
 from drl_web.lunar_runtime import ACTION_LABELS
 from drl_web.lunar_templates import DEFAULT_TRAINING_SOURCE
 
@@ -87,6 +88,24 @@ def _lunar_runtime():
     """Return the cached Lunar runtime availability payload."""
 
     return current_app.extensions["drl_lunar_runtime"]
+
+
+def _grabber_jobs():
+    """Return the local Grabber job manager, if the runtime is available."""
+
+    return current_app.extensions["drl_grabber_jobs"]
+
+
+def _grabber_sessions():
+    """Return the live Grabber session manager, if the runtime is available."""
+
+    return current_app.extensions["drl_grabber_sessions"]
+
+
+def _grabber_runtime():
+    """Return the cached Grabber runtime availability payload."""
+
+    return current_app.extensions["drl_grabber_runtime"]
 
 
 def _parse_int_arg(name: str, *, default: int, minimum: int, maximum: int) -> int:
@@ -192,6 +211,17 @@ def _require_lunar_runtime():
     return jobs, sessions
 
 
+def _require_grabber_runtime():
+    """Return active Grabber managers or raise a clear runtime error response."""
+
+    runtime = _grabber_runtime()
+    jobs = _grabber_jobs()
+    sessions = _grabber_sessions()
+    if not runtime["available"] or jobs is None or sessions is None:
+        raise ServiceUnavailable(description=runtime.get("reason") or "Grabber runtime is unavailable.")
+    return jobs, sessions
+
+
 def _heuristic_checkpoint() -> dict:
     """Return a pseudo-checkpoint entry for the built-in Lunar heuristic."""
 
@@ -224,6 +254,16 @@ def _lunar_checkpoint_entries() -> list[dict]:
         jobs.refresh_featured_checkpoint()
         entries.extend(jobs.list_checkpoints())
     return entries
+
+
+def _grabber_checkpoint_entries() -> list[dict]:
+    """Return the playable Grabber checkpoint catalog."""
+
+    jobs = _grabber_jobs()
+    if jobs is None:
+        return []
+    jobs.refresh_featured_checkpoint()
+    return jobs.list_checkpoints()
 
 
 @main_bp.get("/")
@@ -311,6 +351,21 @@ def lunar_page() -> str:
         jobs=_lunar_jobs().list_jobs(limit=12) if _lunar_jobs() is not None else [],
         action_labels=ACTION_LABELS,
         lunar_runtime=_lunar_runtime(),
+    )
+
+
+@main_bp.get("/grabber")
+def grabber_page() -> str:
+    """Render the dedicated Grabber continuous-control page."""
+
+    guide = _demo_guides()["grabber"]
+    return render_template(
+        "pages/grabber.html",
+        guide=guide,
+        training_form=DEFAULT_TRAINING_FORM,
+        checkpoints=_grabber_checkpoint_entries(),
+        jobs=_grabber_jobs().list_jobs(limit=12) if _grabber_jobs() is not None else [],
+        grabber_runtime=_grabber_runtime(),
     )
 
 
@@ -458,6 +513,137 @@ def lunar_get_job(job_id: int):
     return jsonify({"job": job})
 
 
+@main_bp.post("/api/v1/grabber/sessions")
+def grabber_create_session():
+    """Create one live Grabber play or machine-play session."""
+
+    _, sessions = _require_grabber_runtime()
+    payload = request.get_json(silent=True) or {}
+    controller = str(payload.get("controller", "human")).strip().lower()
+    checkpoint_id = payload.get("checkpoint_id")
+    seed = payload.get("seed")
+    try:
+        session = sessions.create_session(controller=controller, checkpoint_id=checkpoint_id, seed=seed)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    return jsonify(session), 201
+
+
+@main_bp.post("/api/v1/grabber/sessions/<session_id>/step")
+def grabber_step_session(session_id: str):
+    """Advance one live Grabber session."""
+
+    _, sessions = _require_grabber_runtime()
+    payload = request.get_json(silent=True) or {}
+    try:
+        raw_action = payload.get("action")
+        action = None if raw_action is None else list(raw_action)
+        session = sessions.step_session(session_id, action=action)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except KeyError:
+        return jsonify({"error": "session was not found"}), 404
+    return jsonify(session)
+
+
+@main_bp.post("/api/v1/grabber/sessions/<session_id>/reset")
+def grabber_reset_session(session_id: str):
+    """Reset one live Grabber session."""
+
+    _, sessions = _require_grabber_runtime()
+    try:
+        session = sessions.reset_session(session_id)
+    except KeyError:
+        return jsonify({"error": "session was not found"}), 404
+    return jsonify(session)
+
+
+@main_bp.delete("/api/v1/grabber/sessions/<session_id>")
+def grabber_delete_session(session_id: str):
+    """Delete one live Grabber session."""
+
+    _, sessions = _require_grabber_runtime()
+    sessions.delete_session(session_id)
+    return jsonify({"status": "deleted", "session_id": session_id})
+
+
+@main_bp.get("/api/v1/grabber/checkpoints")
+def grabber_list_checkpoints():
+    """Return the playable Grabber checkpoint catalog."""
+
+    _require_grabber_runtime()
+    return jsonify({"checkpoints": _grabber_checkpoint_entries()})
+
+
+@main_bp.get("/api/v1/grabber/checkpoints/<checkpoint_id>/summary")
+def grabber_checkpoint_summary(checkpoint_id: str):
+    """Return one Grabber checkpoint summary."""
+
+    jobs, _ = _require_grabber_runtime()
+    summary = jobs.get_checkpoint_summary(checkpoint_id)
+    if summary is None:
+        return jsonify({"error": "checkpoint was not found"}), 404
+    return jsonify({"checkpoint": summary})
+
+
+@main_bp.post("/api/v1/grabber/jobs")
+def grabber_create_job():
+    """Submit one local Grabber train or evaluate job."""
+
+    jobs, _ = _require_grabber_runtime()
+    payload = request.get_json(silent=True) or {}
+    try:
+        job = jobs.submit_job(payload)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    return jsonify({"job": job}), 202
+
+
+@main_bp.get("/api/v1/grabber/jobs")
+def grabber_list_jobs():
+    """Return recent Grabber jobs."""
+
+    jobs, _ = _require_grabber_runtime()
+    limit = _parse_int_arg("limit", default=20, minimum=1, maximum=200)
+    return jsonify({"jobs": jobs.list_jobs(limit=limit)})
+
+
+@main_bp.get("/api/v1/grabber/jobs/<int:job_id>")
+def grabber_get_job(job_id: int):
+    """Return one Grabber job."""
+
+    jobs, _ = _require_grabber_runtime()
+    job = jobs.get_job(job_id)
+    if job is None:
+        return jsonify({"error": "job was not found"}), 404
+    return jsonify({"job": job})
+
+
+@main_bp.get("/api/v1/grabber/jobs/<int:job_id>/timeline")
+def grabber_get_timeline(job_id: int):
+    """Return the saved learning timeline for one Grabber training job."""
+
+    jobs, _ = _require_grabber_runtime()
+    job = jobs.get_job(job_id)
+    if job is None:
+        return jsonify({"error": "job was not found"}), 404
+    return jsonify({"timeline": jobs.get_timeline(job_id)})
+
+
+@main_bp.get("/api/v1/grabber/jobs/<int:job_id>/timeline/<snapshot_id>")
+def grabber_get_timeline_snapshot(job_id: int, snapshot_id: str):
+    """Return one saved timeline snapshot rollout."""
+
+    jobs, _ = _require_grabber_runtime()
+    job = jobs.get_job(job_id)
+    if job is None:
+        return jsonify({"error": "job was not found"}), 404
+    snapshot = jobs.get_timeline_snapshot(job_id, snapshot_id)
+    if snapshot is None:
+        return jsonify({"error": "timeline snapshot was not found"}), 404
+    return jsonify({"snapshot": snapshot})
+
+
 @main_bp.get("/healthz")
 def healthz():
     """Return a lightweight health payload for smoke tests and mounts."""
@@ -468,5 +654,6 @@ def healthz():
             "service": "drl-web",
             "timestamp": datetime.now(UTC).isoformat(),
             "lunar_runtime": _lunar_runtime(),
+            "grabber_runtime": _grabber_runtime(),
         }
     )

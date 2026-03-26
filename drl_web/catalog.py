@@ -159,25 +159,27 @@ def get_catalog() -> tuple[Section, ...]:
         Section(
             slug="continuous-control",
             nav_label="Continuous Control",
-            eyebrow="DDPG + Reacher + Unity project work",
-            title="Continuous control and the Reacher project",
-            summary="The deepest single branch in the repo and the likely centerpiece of the eventual DRL arm.",
-            readiness="High-value but legacy-heavy",
-            runtime="Requires isolated Unity/ML-Agents stack",
+            eyebrow="Grabber live lab + Reacher archive lineage",
+            title="Continuous control and the Reacher / Grabber lane",
+            summary="A live browser-native continuous-control lab now sits beside the deeper Reacher archive, giving DRL a modern entrypoint without reviving Unity first.",
+            readiness="Live lab + deep legacy archive",
+            runtime="Grabber is live; old Reacher still needs isolation",
             how_it_works=(
-                "This area combines the course DDPG tutorials, multiple Reacher implementations, single-agent and twenty-agent project variants, "
+                "The new live lane is Grabber: a custom 2D arm task with continuous actions, machine playback, and bounded PPO training. "
+                "Behind it, the archive still holds the course DDPG tutorials, multiple Reacher implementations, single-agent and twenty-agent project variants, "
                 "vectorized environment experiments, PPO/REINFORCE side paths, sample transition CSVs, and the vendored ML-Agents Python package."
             ),
             why_reuse=(
-                "It connects theory, project practice, environment assets, and your own experiments better than any other branch in the archive."
+                "This branch now connects a live, understandable continuous-control lab to the heavier historical Reacher work, so users can learn the control ideas first and then trace the lineage back into the archive."
             ),
             related_slugs=("policy-gradients", "multi-agent", "finance"),
             needs=(
-                "Containerize or otherwise isolate the old `unityagents 0.4.0` / TensorFlow 1.7 stack.",
-                "Curate one DDPG path as canonical and demote the rest to archive or experiments.",
-                "Use the CSV transition data and Reacher docs for the first review-oriented web pages before promising live training.",
+                "Keep Grabber as the modern live lane and avoid pulling Unity/ML-Agents baggage into the core app runtime.",
+                "Containerize or otherwise isolate the old `unityagents 0.4.0` / TensorFlow 1.7 stack before attempting true Reacher runtime recovery.",
+                "Curate one DDPG path as canonical archive context and demote the rest to experiments or clutter.",
             ),
             highlights=(
+                _asset("Grabber Live Lab", "web runtime", "drl_web", "Browser-rendered 2D continuous-control lab with PPO training, checkpoint playback, and learning snapshots."),
                 _asset("Project 2 Root", "project bundle", "source-material/classwork/project-reports/p2_continuous-control", "Main notebooks, data, docs, env zips, and multiple code paths."),
                 _asset("Multi-agent DDPG", "python module", "source-material/classwork/project-reports/p2_continuous-control/ddpg", "Core Reacher DDPG agent, model, and training loop."),
                 _asset("Single-agent DDPG", "python module", "source-material/classwork/project-reports/p2_continuous-control/ddpg_single_agent", "Simpler Reacher variant for the one-agent environment."),

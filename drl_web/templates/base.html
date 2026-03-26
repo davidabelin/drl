@@ -23,6 +23,7 @@
         <a href="{{ url_for('main.home') }}">Overview</a>
         <a href="{{ url_for('main.inventory_page') }}">Inventory</a>
         <a href="{{ url_for('main.lunar_page') }}">Lunar</a>
+        <a href="{{ url_for('main.grabber_page') }}">Grabber</a>
         {% for section in catalog_sections %}
         <a href="{{ url_for('main.section_page', slug=section.slug) }}">{{ section.nav_label }}</a>
         {% endfor %}

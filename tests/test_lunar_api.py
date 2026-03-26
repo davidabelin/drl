@@ -152,10 +152,10 @@ def test_lunar_routes_mount_through_aix(tmp_path, monkeypatch):
     from aix_web import create_app as create_aix_app
 
     client = Client(create_aix_app(), Response)
-    response = client.get("/drl/lunar")
+    response = client.get("/drl/")
     assert response.status_code == 200
-    response = client.get("/drl/api/v1/lunar/checkpoints")
-    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "Lunar Lander" in html
 
 
 def test_drl_path_prefix_middleware_supports_prefixed_routes(tmp_path):

@@ -200,6 +200,88 @@ def get_demo_guides() -> dict[str, DemoGuide]:
                 "Promote the strongest local checkpoint into a durable featured controller once it clears the evaluation gate.",
             ),
         ),
+        "grabber": DemoGuide(
+            slug="grabber",
+            overview_title="Why Grabber is the live continuous-control lane",
+            overview_body=(
+                "The old Reacher branch is rich but too entangled with Unity, ML-Agents, and older environment assumptions to become the first live continuous-control experience. "
+                "Grabber preserves the core teaching shape instead: continuous actions, a visible arm, a clear target, and a staged objective that lets users watch learning improve over time."
+            ),
+            cards=(
+                _card(
+                    "Live first",
+                    "Why this is not a direct Unity Reacher port",
+                    "Grabber keeps the arm-control intuition of Reacher but replaces the legacy simulator with a browser-native 2D task. That removes the old runtime baggage while keeping the ideas users actually need to see: continuous control, grasp timing, and return-home behavior.",
+                ),
+                _card(
+                    "Task structure",
+                    "Grab, then carry the coin home",
+                    "The policy does not only need to reach. It must approach the coin, close the grip inside the capture radius, keep possession, and then bring the coin back into the visible home zone for a short dwell window.",
+                    "Approach shaping gives the policy a path toward the coin.",
+                    "Latch and carry rewards turn the task into a sequence instead of one contact event.",
+                    "The home-zone hold window makes success visible to humans and stable enough for checkpoint comparison.",
+                ),
+                _card(
+                    "How to read the page",
+                    "Three surfaces, one control language",
+                    "Human play, machine playback, and training all share the same three control axes: shoulder, elbow, and grip. The color-coded gauges make it obvious which degree of freedom is doing the work on each step.",
+                ),
+                _card(
+                    "Why PPO leads",
+                    "The live lane teaches policy learning directly",
+                    "The historical Reacher archive is DDPG-heavy, but Grabber uses PPO for the live page because it is a cleaner fit for the bounded worker pipeline and a more stable first public training surface. The archive still points back to DDPG as lineage, not as the first runtime dependency.",
+                ),
+            ),
+            source_refs=(
+                _ref(
+                    "Continuous Control project root",
+                    "project bundle",
+                    "source-material/classwork/project-reports/p2_continuous-control",
+                    "The original project branch with Reacher notebooks, reports, environment notes, and auxiliary experiments.",
+                ),
+                _ref(
+                    "Project README",
+                    "markdown",
+                    "source-material/classwork/project-reports/p2_continuous-control/README.md",
+                    "Defines the original double-jointed target-reaching task, its observation space, and the continuous action framing.",
+                ),
+                _ref(
+                    "Single-agent DDPG",
+                    "python module",
+                    "source-material/classwork/project-reports/p2_continuous-control/ddpg_single_agent",
+                    "The simpler historical Reacher lane that informs the live lab’s control vocabulary even though the runtime is different.",
+                ),
+                _ref(
+                    "Reacher DDPG notebooks",
+                    "notebook set",
+                    "source-material/ddpg/reacher",
+                    "Actor-critic experiments, reward notes, and action-space references that sit behind the live Grabber page as archive lineage.",
+                ),
+            ),
+            glossary=(
+                _term("Continuous action", "A real-valued control command instead of picking from a short discrete menu."),
+                _term("Velocity target", "The policy commands how fast each joint or grip axis should move right now, rather than a direct final angle."),
+                _term("Latch", "The moment the closing hand captures the coin inside the allowed radius."),
+                _term("Return dwell", "The number of consecutive steps the held coin must remain inside the home zone before the episode counts as a success."),
+                _term("PPO", "A clipped policy-gradient method that updates the controller while limiting how abruptly the action distribution can change."),
+                _term("Learning timeline", "Saved snapshot rollouts from different stages of training so users can compare early, middle, and late behavior on the same task."),
+            ),
+            keeps=(
+                "A visibly articulated arm with distinct joints, a hand, and a gold coin target.",
+                "Continuous control with shared human-play, machine-play, and training semantics.",
+                "A direct line back to the Reacher/DDPG archive without importing the Unity runtime.",
+            ),
+            omits=(
+                "The original Unity Reacher simulator and ML-Agents runtime.",
+                "Multi-agent continuous-control variants.",
+                "A freeform code editor for training logic.",
+            ),
+            next_steps=(
+                "Decide later whether a true DDPG comparison lane should sit beside PPO on the same task.",
+                "Use Grabber as the bridge into the heavier Reacher archive and continuous-control theory pages.",
+                "Add richer scene variants only after the base single-coin task is stable.",
+            ),
+        ),
         "finance": DemoGuide(
             slug="finance",
             overview_title="Why this finance demo matters",

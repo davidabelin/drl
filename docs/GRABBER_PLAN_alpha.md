@@ -1,0 +1,222 @@
+# Grabber Implementation Rollout
+
+## Summary
+- Implement `Grabber` as a new live DRL lab at `/grabber`, parallel to Lunar.
+- V1 is a custom browser-rendered 2D continuous-control task: fixed-base 2-link arm, one grip DOF, one gold coin, one home zone, objective `grab and return`.
+- Preserve old Reacher/DDPG assets as archive lineage only; do not depend on Unity, ML-Agents, or MuJoCo for the live lane.
+- Use PPO for training, periodic seeded evaluation rollouts for the learning timeline, and bounded form-based training controls instead of a code editor.
+
+## Implementation Changes
+- App assembly and navigation
+  - Add Grabber runtime config keys in the app factory: `DRL_GRABBER_JOBS_ROOT`, `DRL_GRABBER_RUNTIME_PYTHON`, `DRL_GRABBER_MAX_WORKERS`.
+  - Instantiate and cache Grabber job/session/runtime objects in `app.extensions`, parallel to Lunar.
+  - Add `/grabber` page route plus `/api/v1/grabber/*` route family.
+  - Add Grabber to the top nav, home hero/demo entrypoints, and the Continuous Control section CTA.
+  - Update catalog and demo-guide content so Continuous Control points to Grabber as the live modern lane while legacy Reacher remains archive-first context.
+
+- Grabber environment and runtime
+  - Add a DRL-local `GrabberEnv` module with deterministic reset/step/render-state behavior and no external simulator dependency.
+  - Fix the v1 task model:
+    - 2 arm joints: `shoulder`, `elbow`
+    - 1 gripper DOF: `grip_open`
+    - 1 movable `coin`
+    - 1 visible `home zone`
+  - Fix action semantics to `[-1, 1]` continuous velocity targets:
+    - `action[0]`: shoulder angular velocity target
+    - `action[1]`: elbow angular velocity target
+    - `action[2]`: grip velocity target
+  - Fix success semantics:
+    - approach coin
+    - close grip inside capture radius
+    - latch coin
+    - carry coin into home zone
+    - hold in zone for configured dwell steps
+    - mark episode `success`
+  - Add explicit terminal reasons such as `success`, `timeout`, `dropped_after_latch`, and `out_of_bounds` if used.
+  - Fix observation vector order to:
+    - `sin_shoulder`, `cos_shoulder`
+    - `sin_elbow`, `cos_elbow`
+    - `shoulder_vel`, `elbow_vel`
+    - `grip_open`, `grip_vel`
+    - `fingertip_to_coin_x`, `fingertip_to_coin_y`
+    - `coin_to_home_x`, `coin_to_home_y`
+    - `coin_vel_x`, `coin_vel_y`
+    - `held_flag`
+    - `prev_action_shoulder`, `prev_action_elbow`, `prev_action_grip`
+  - Add a reward breakdown returned on every step:
+    - `approach`
+    - `latch_bonus`
+    - `carry_progress`
+    - `home_hold`
+    - `success_bonus`
+    - `action_penalty`
+    - `action_change_penalty`
+    - `drop_penalty`
+    - `joint_limit_penalty`
+    - `timeout_penalty`
+  - Add checkpoint loading/inference support for PPO policies in a Grabber-specific runtime module.
+  - Add `GrabberSessionManager` parallel to Lunar, but returning scene JSON instead of image frames.
+
+- Grabber page and frontend
+  - Add a dedicated template and page JS for Grabber, mirroring Lunar’s three-surface layout:
+    - `Play`
+    - `Machine Play`
+    - `Training`
+  - Use browser-side SVG or canvas rendering from backend scene JSON.
+  - Fix visual language:
+    - dark neutral stage
+    - teal upper arm
+    - coral forearm
+    - neutral hand
+    - gold coin
+    - visible home cradle/zone
+  - Add live telemetry cards for:
+    - step
+    - reward
+    - score/return
+    - held flag
+    - done
+    - done reason
+  - Add reward-breakdown display and observation display.
+  - Add 3 color-coded live DOF gauges:
+    - `Shoulder`
+    - `Elbow`
+    - `Grip`
+  - Tie gauge intensity and joint/hand highlight intensity to the current command magnitude in `[-1, 1]`.
+  - Fix human-control mapping to keyboard-hold plus on-screen buttons:
+    - `A/D`: shoulder negative/positive
+    - `J/L`: elbow negative/positive
+    - `W/S`: grip close/open
+  - Send a continuously updated 3-value action vector while keys/buttons are held.
+  - Machine Play controls:
+    - controller selector
+    - `load`
+    - `run`
+    - `pause`
+    - `step`
+    - `reset`
+    - playback speed
+  - Playback should use deterministic PPO mean-action inference by default.
+
+- Training, jobs, and learning timeline
+  - Add Grabber-specific job manager and worker modules parallel to Lunar.
+  - Use bounded form-based training controls, not Ace/freeform Python.
+  - Training form groups:
+    - `Environment`
+    - `Reward`
+    - `PPO`
+  - Environment controls:
+    - seed
+    - max steps
+    - coin spawn radius
+    - home-zone radius
+    - shoulder speed cap
+    - elbow speed cap
+    - grip speed cap
+    - return-dwell steps
+  - Reward controls:
+    - approach weight
+    - latch bonus
+    - carry weight
+    - home hold bonus
+    - success bonus
+    - action penalty
+    - action-change penalty
+    - drop penalty
+  - PPO controls:
+    - total updates
+    - rollout horizon
+    - `num_envs`
+    - learning rate
+    - gamma
+    - GAE lambda
+    - clip epsilon
+    - entropy coefficient
+    - value coefficient
+    - minibatches
+    - epochs
+    - hidden sizes
+  - Implement PPO worker with:
+    - shared MLP trunk
+    - Gaussian actor head with squashed outputs
+    - scalar value head
+    - GAE
+    - clipped objective
+    - vectorized pure-Python env rollout
+  - Default worker training to `8` envs; evaluation remains single-env and seeded.
+  - Persist these artifacts:
+    - `metadata.json`
+    - `config_snapshot.json`
+    - `stdout.log`
+    - `stderr.log`
+    - `metrics.jsonl`
+    - `best_policy.pt`
+    - `latest_policy.pt`
+    - `evaluation.json`
+    - `timeline_manifest.json`
+    - `snapshots/*`
+  - During training, every `10` updates:
+    - run fixed-seed evaluation rollout
+    - save snapshot checkpoint
+    - save replayable rollout JSON with per-step scene state, actions, rewards, possession state, and outcome
+  - Add Grabber checkpoint APIs:
+    - `GET /api/v1/grabber/checkpoints`
+    - `GET /api/v1/grabber/checkpoints/<checkpoint_id>/summary`
+  - Add Grabber job APIs:
+    - `POST /api/v1/grabber/jobs`
+    - `GET /api/v1/grabber/jobs`
+    - `GET /api/v1/grabber/jobs/<job_id>`
+  - Add timeline APIs:
+    - `GET /api/v1/grabber/jobs/<job_id>/timeline`
+    - `GET /api/v1/grabber/jobs/<job_id>/timeline/<snapshot_id>`
+  - Promote a checkpoint to `featured` only if deterministic evaluation clears:
+    - success rate `>= 0.80`
+    - `20` seeded episodes
+
+- Delivery sequence
+  - Phase 1: backend environment + scene schema + browser renderer
+  - Phase 2: human play and keyboard/gauge loop
+  - Phase 3: machine-play sessions and PPO checkpoint loading
+  - Phase 4: PPO worker, job manager, evaluation, and persistence
+  - Phase 5: training timeline and snapshot playback
+  - Phase 6: content/copy/nav/catalog updates
+  - Phase 7: deployment/config cleanup and final polish
+  - Keep Lunar untouched except for small shared helpers or nav-level integration when unavoidable.
+
+## Test Plan
+- Add unit tests for:
+  - Grabber reset/step transitions
+  - latch rule
+  - carry-home success
+  - reward-term accounting
+  - action clipping
+  - observation ordering
+  - deterministic checkpoint inference
+- Add API tests for:
+  - session create/step/reset/delete
+  - invalid action shape or values
+  - checkpoint listing and summaries
+  - job submission and polling
+  - timeline manifest and snapshot fetch
+  - prefixed `/drl/grabber` route support
+- Add worker smoke tests for:
+  - tiny PPO train job
+  - evaluation job
+  - snapshot generation
+  - featured checkpoint gate logic
+- Extend chrome/render tests to include `/grabber`.
+- Manual acceptance:
+  - keyboard control feels responsive
+  - DOF gauges and limb highlights track command magnitude
+  - coin visibly latches and returns home
+  - deterministic machine playback works
+  - training form submits bounded configs successfully
+  - learning timeline shows clear early/mid/late behavior progression
+
+## Assumptions and Defaults
+- V1 is single-arm, single-coin, single-home-zone only.
+- No obstacle field, no moving targets, no multi-agent behavior in v1.
+- PPO is the only live training lane in v1.
+- Browser-rendered scene JSON is the rendering contract for Grabber.
+- Structured training forms replace a freeform editor for this lab.
+- The task remains `grab and return`, not pure reach and not full physical pinch grasp.
