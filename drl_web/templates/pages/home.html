@@ -16,6 +16,10 @@
       <a class="btn btn-secondary" href="{{ url_for('main.lunar_page') }}">Open Lunar Lander</a>
       <a class="btn btn-secondary" href="{{ url_for('main.grabber_page') }}">Open Grabber</a>
     </div>
+    <button class="welcome-button" type="button" data-welcome-open aria-haspopup="dialog" aria-controls="welcome-banner">
+      <span>Mom and Joe!</span>
+      <span>Hit me!</span>
+    </button>
   </div>
   <aside class="hero-panel">
     <div class="metric-grid">
@@ -39,6 +43,30 @@
     <p class="panel-note">{{ inventory.overview.filtered_scan }}</p>
   </aside>
 </section>
+
+<div class="welcome-overlay" data-welcome-overlay hidden>
+  <section
+    class="welcome-panel"
+    id="welcome-banner"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="welcome-title"
+    tabindex="-1"
+  >
+    <button class="welcome-close" type="button" data-welcome-close aria-label="Close welcome message">Close</button>
+    <p class="eyebrow">Welcome Banner</p>
+    <h2 id="welcome-title">Hello, Mom and Joe.</h2>
+    <p>
+      This is a small throw-away preservation project for classwork from about five years ago. It is not a monument, and I am not requesting ceremonial approval or false validation as though it were a life-defining masterpiece.
+    </p>
+    <p>
+      The better use of the page is simple: click around, have some genuine fun with it, laugh at the rough edges, and maybe gasp in awe at what coding with code helpers like OpenAI's Codex v5.5 on Extra High can do.
+    </p>
+    <p>
+      To be precise in a normal robotic way: the old reinforcement-learning code and project history are mine. The helpful agents just made it a little more accessible to other people.
+    </p>
+  </section>
+</div>
 
 {% if demo_sections %}
 <section class="section-block">
@@ -127,4 +155,7 @@
     {% endfor %}
   </div>
 </section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/welcome_banner.js') }}" defer></script>
 {% endblock %}

@@ -23,3 +23,18 @@ def test_base_chrome_is_drl_only(path: str):
         assert fragment not in html
     assert "copyleft.svg" in html
     assert "2026 DRL Lab" in html
+
+
+def test_home_includes_welcome_banner_trigger_and_panel():
+    app = create_app({"TESTING": True})
+    client = app.test_client()
+    response = client.get("/")
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert "Mom and Joe!" in html
+    assert "Hit me!" in html
+    assert 'id="welcome-banner"' in html
+    assert 'data-welcome-overlay hidden' in html
+    assert "OpenAI's Codex v5.5 on Extra High" in html
+    assert "the old reinforcement-learning code and project history are mine" in html
+    assert "js/welcome_banner.js" in html
