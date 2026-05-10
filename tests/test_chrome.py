@@ -35,6 +35,10 @@ def test_home_includes_welcome_banner_trigger_and_panel():
     assert "Hit me!" in html
     assert 'id="welcome-banner"' in html
     assert 'data-welcome-overlay hidden' in html
-    assert "OpenAI's Codex v5.5 on Extra High" in html
-    assert "the old reinforcement-learning code and project history are mine" in html
+    assert "<h1>Welcome Banner</h1>" in html
+    assert "<h2>Hello, Mom and Joe!</h2>" in html
+    assert "A mashup of introductory things" in html
+    assert "<strong>mind</strong>" in html
+    assert "<code>Codex v5.5</code>" in html
+    assert "The resulting live and interactive web app implementation" in html
     assert "js/welcome_banner.js" in html

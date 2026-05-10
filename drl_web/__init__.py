@@ -22,6 +22,7 @@ from drl_web.grabber_runtime import GrabberSessionManager, RuntimeUnavailableErr
 from drl_web.inventory import get_inventory_snapshot
 from drl_web.lunar_jobs import LunarJobManager
 from drl_web.lunar_runtime import LunarSessionManager, RuntimeUnavailableError, load_checkpoint
+from drl_web.welcome import load_welcome_banner
 
 
 def create_app(config: dict | None = None) -> Flask:
@@ -56,6 +57,7 @@ def create_app(config: dict | None = None) -> Flask:
         DRL_GRABBER_JOBS_ROOT=str(Path(os.getenv("DRL_GRABBER_JOBS_ROOT", str(root / "data" / "grabber_jobs"))).expanduser()),
         DRL_GRABBER_RUNTIME_PYTHON=str(os.getenv("DRL_GRABBER_RUNTIME_PYTHON", sys.executable)),
         DRL_GRABBER_MAX_WORKERS=max(1, int(os.getenv("DRL_GRABBER_MAX_WORKERS", "1"))),
+        DRL_WELCOME_BANNER_PATH=str(root / "docs" / "Welcome_Banner_final.md"),
     )
     if config:
         app.config.update(config)
@@ -67,6 +69,7 @@ def create_app(config: dict | None = None) -> Flask:
     app.extensions["drl_catalog_by_slug"] = {section.slug: section for section in catalog}
     app.extensions["drl_demo_guides"] = demo_guides
     app.extensions["drl_inventory"] = inventory
+    app.extensions["drl_welcome_banner"] = load_welcome_banner(app.config["DRL_WELCOME_BANNER_PATH"])
     try:
         lunar_jobs = LunarJobManager(
             repo_root=root,
