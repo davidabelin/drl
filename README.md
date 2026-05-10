@@ -1,6 +1,6 @@
 # DRL
 
-Standalone Deep RL Lab web application and AIX sister project.
+Standalone Deep RL Lab web application.
 
 ## Canonical Publish
 

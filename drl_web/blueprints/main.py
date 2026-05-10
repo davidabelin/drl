@@ -8,12 +8,6 @@ This blueprint serves two jobs:
 
 The demo math itself lives in :mod:`drl_web.demo_services`; this module is the
 thin orchestration layer between Flask, templates, and those service helpers.
-
-Cross-Repo Context
-------------------
-The AIX hub does not import this blueprint directly. Instead, the AIX-side DRL
-portal links outward to this standalone app and mirrors its high-level table of
-contents.
 """
 
 from __future__ import annotations

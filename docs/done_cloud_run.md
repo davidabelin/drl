@@ -34,7 +34,7 @@ Use Cloud Run for the first standalone online DRL deployment.
 
 Recommended initial environment variables:
 
-- `AIX_HUB_URL`: your AIX hub URL if you want the back-link to point there; otherwise leave it at `/` for early standalone testing.
+- No cross-app back-link environment variable is used; DRL navigation should remain local.
 - `APP_BASE_PATH`: leave empty for the standalone DRL service. Only set this to `/drl` when the service is actually being served behind that prefix.
 - `DRL_LUNAR_JOBS_ROOT`: `/tmp/drl_lunar_jobs`
 - `DRL_LUNAR_MAX_WORKERS`: `1`

@@ -9,8 +9,8 @@
 - Runtime and trainer
   - Implement a backend environment adapter for discrete LunarLander using Gymnasium, targeting `LunarLander-v3` when available and falling back to `LunarLander-v2` only if required by the runtime.
   - Base the first learned-policy pipeline on the discrete lunar DQN materials, not PPO or DDPG.
-  - Use the current local DRL/AIX Python environment for v1 runtime and training jobs; add the needed Lunar stack there instead of introducing a separate worker service in the first milestone.
-  - Add a DRL-local job manager, modeled on the existing Polyfolds job flow, with configurable roots such as `DRL_LUNAR_JOBS_ROOT` and optional interpreter override `DRL_LUNAR_RUNTIME_PYTHON`.
+  - Use the current local DRL Python environment for v1 runtime and training jobs; add the needed Lunar stack there instead of introducing a separate worker service in the first milestone.
+  - Add a DRL-local job manager, modeled on the existing job-management pattern, with configurable roots such as `DRL_LUNAR_JOBS_ROOT` and optional interpreter override `DRL_LUNAR_RUNTIME_PYTHON`.
   - Support exactly two job kinds in v1: `train` and `evaluate`.
   - Persist per-job artifacts in a fixed shape: `metadata.json`, `stdout/stderr` logs, `metrics.jsonl`, `best_checkpoint.pt`, `latest_checkpoint.pt`, `evaluation.json`, and the submitted editable source snapshot.
 
@@ -49,7 +49,7 @@
   - Unit-test job submission, job status transitions, artifact registration, checkpoint discovery, and failure paths.
   - Add a smoke trainer run with very small episode counts and a smoke evaluation job that consumes its output checkpoint.
 - API
-  - Add Flask tests for all `/api/v1/lunar/*` endpoints, including invalid actions, invalid session ids, missing checkpoints, failed jobs, and mounted `/drl/...` behavior through AIX.
+  - Add Flask tests for all `/api/v1/lunar/*` endpoints, including invalid actions, invalid session ids, missing checkpoints, failed jobs, and prefixed `/drl/...` behavior through the WSGI middleware.
   - Verify that a completed training job produces a discoverable checkpoint and that evaluation jobs can consume it.
 - UI/manual
   - Verify keyboard human play, visible reward/score/state updates, and episode reset behavior.
@@ -62,4 +62,4 @@
 - Learned-policy-first means fresh retraining only. No time is budgeted for historical checkpoint recovery.
 - The first live learned agent is DQN-based.
 - The training playground is local-first. Public-safe arbitrary-code execution, multi-tenant hardening, and deployment-safe sandboxing are explicitly deferred.
-- The DRL app remains the owning surface. No new AIX mount is introduced; Lunar is implemented as a richer subpage and API family inside the existing DRL lab.
+- The DRL app remains the owning surface. No external app mount is introduced; Lunar is implemented as a richer subpage and API family inside the existing DRL lab.

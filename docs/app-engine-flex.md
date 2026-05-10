@@ -19,7 +19,7 @@ Canonical standalone DRL deploy now targets App Engine flexible in project
 - `Dockerfile` remains the source of truth for the container runtime
 - `requirements.appengine.txt` pins the CPU-only PyTorch wheel so App Engine
   does not pull the much larger CUDA stack during image builds
-- `AIX_HUB_URL` points back to `https://aix-labs.uw.r.appspot.com/`
+- No cross-app back-link environment variable is configured; DRL owns its own navigation
 - `APP_BASE_PATH` stays unset for the standalone host
 
 ## Normal path

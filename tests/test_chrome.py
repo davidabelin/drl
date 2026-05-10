@@ -6,18 +6,20 @@ from drl_web import create_app
 
 
 @pytest.mark.parametrize("path", ["/", "/inventory", "/lunar", "/grabber"])
-def test_base_chrome_uses_aix_labs_label_and_footer(path: str):
-    app = create_app(
-        {
-            "TESTING": True,
-            "AIX_HUB_URL": "https://aix-labs.uw.r.appspot.com/",
-        }
-    )
+def test_base_chrome_is_drl_only(path: str):
+    app = create_app({"TESTING": True})
     client = app.test_client()
     response = client.get(path)
     assert response.status_code == 200
     html = response.get_data(as_text=True)
-    assert "AIX Labs" in html
-    assert "https://aix-labs.uw.r.appspot.com/" in html
+    forbidden_fragments = (
+        "A" + "IX",
+        "a" + "ix-labs",
+        "__" + "A" + "IX_HUB_URL__",
+        "Proto" + "dyne",
+    )
+    assert "DRL Labs" in html
+    for fragment in forbidden_fragments:
+        assert fragment not in html
     assert "copyleft.svg" in html
-    assert "2026 AIX Protodyne" in html
+    assert "2026 DRL Lab" in html

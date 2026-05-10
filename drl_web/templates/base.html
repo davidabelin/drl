@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Baskervville:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
     <script>
-      window.__AIX_HUB_URL__ = "{{ aix_hub_url|tojson }}";
       window.__APP_BASE_PATH__ = "{{ app_base_path|tojson }}";
     </script>
   </head>
@@ -27,7 +26,6 @@
         {% for section in catalog_sections %}
         <a href="{{ url_for('main.section_page', slug=section.slug) }}">{{ section.nav_label }}</a>
         {% endfor %}
-        <a href="{{ aix_hub_url }}">AIX Labs</a>
       </nav>
     </header>
     <main class="page">
@@ -37,7 +35,7 @@
       <div class="footer-inner">
         <p class="footer-copy">
           <img class="copyleft-mark" src="{{ url_for('static', filename='icons/copyleft.svg') }}" alt="" aria-hidden="true" width="16" height="16">
-          <span>2026 AIX Protodyne</span>
+          <span>2026 DRL Lab</span>
         </p>
         <nav class="footer-links" aria-label="DRL footer">
 		  <a href="{{ url_for('main.home') }}">Deep Reinforcement Learning Labs</a>

@@ -25,14 +25,11 @@ Status refresh: 2026-03-25
 - [ ] Implement the turn-based multi-agent RL demo.
 - [ ] Condense the scripts into 4 regular-use files.
 
-## Legacy URL: `https://drl-web-x2ulcmhaiq-wm.a.run.app/`
+## Legacy Cloud Run Host
 - [x] Replace the ugly generated DRL URL as the canonical entry point.
   - Current canonical DRL URL is `https://deeprl-031026.wm.r.appspot.com/`
-  - AIX already points to the canonical App Engine URL, and that canonical URL serves the updated chrome
-- [x] Change `Back to AIX Hub` to `AIX Labs` and point it to AIX.
-  - Verified on the canonical App Engine DRL URL and in the local DRL repo
 - [ ] Retire or redirect the legacy Cloud Run URL if it is no longer intended to be public.
-  - It still responds, so this is now a deployment/cloud cleanup item rather than an AIX-code item.
+  - It still responds, so this is now a deployment/cloud cleanup item rather than a code item.
   - This still needs an explicit choice about whether the old URL should hard-redirect, serve a retirement notice, or be made private.
   - [ ] Retrieve and use the data collected from gameplay at the older "ugly" location
 
@@ -69,7 +66,7 @@ Status refresh: 2026-03-25
 
 ## Multi-agent Gameplay -- *high priority*
 - [x] Made a **priority**
-  - experience to be used for another project (`Clue`, but want easier than `Clue` here)
+  - experience to be used for a separate project, but easier to present here
 - [] Design a turn-based multi-player game as RL demo
   - [] choose a game: **not**`Connect Four`, not poker
   - [] PLAN implementation in `docs\multi-agent-turn-based-plan.md`

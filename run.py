@@ -1,8 +1,7 @@
 """Gunicorn/Flask entrypoint for the DRL web app.
 
 This module keeps local development simple while making the same application
-deployable behind a path prefix such as ``/drl``. That lets the lab run both as
-its own standalone service and as a mounted arm under the larger AIX surface.
+deployable at ``/`` or behind a configured path prefix such as ``/drl``.
 """
 
 from __future__ import annotations

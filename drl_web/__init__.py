@@ -3,14 +3,7 @@
 The DRL app is intentionally content-first. It exposes a curated catalog of
 sections, a filtered repository inventory, and a growing set of interactive
 demos that reinterpret older notebook material as web-native review pages.
-The same factory is used both for local development and when the lab is mounted
-under the larger AIX hub.
-
-Cross-Repo Context
-------------------
-In production, AIX no longer mounts the DRL runtime directly. Instead, AIX
-surfaces a sister-app portal that points at the standalone DRL deployment. This
-factory remains the authoritative assembly point for the DRL app itself.
+The same factory is used for local development and standalone deployment.
 """
 
 from __future__ import annotations
@@ -37,8 +30,8 @@ def create_app(config: dict | None = None) -> Flask:
     Parameters
     ----------
     config:
-        Optional Flask configuration overrides. The AIX adapter uses this hook
-        to inject mount-specific settings without changing the standalone app.
+        Optional Flask configuration overrides for tests and deployment
+        environments.
 
     Returns
     -------
@@ -55,7 +48,6 @@ def create_app(config: dict | None = None) -> Flask:
     )
     app.config.from_mapping(
         SECRET_KEY="dev-only-secret-key-change-me",
-        AIX_HUB_URL=os.getenv("AIX_HUB_URL", "/"),
         DRL_REPO_ROOT=str(root),
         DRL_APP_TITLE="DRL Lab",
         DRL_LUNAR_JOBS_ROOT=str(Path(os.getenv("DRL_LUNAR_JOBS_ROOT", str(root / "data" / "lunar_jobs"))).expanduser()),
@@ -140,7 +132,6 @@ def create_app(config: dict | None = None) -> Flask:
 
         return {
             "app_base_path": request.script_root or "",
-            "aix_hub_url": str(app.config.get("AIX_HUB_URL", "/")).strip() or "/",
             "catalog_sections": catalog,
             "inventory_overview": inventory["overview"],
             "app_title": app.config["DRL_APP_TITLE"],

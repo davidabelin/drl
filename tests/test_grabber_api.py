@@ -206,19 +206,6 @@ def test_grabber_invalid_requests(client):
     assert response.status_code == 404
 
 
-def test_grabber_routes_mount_through_aix(tmp_path, monkeypatch):
-    aix_root = Path(__file__).resolve().parents[2] / "aix"
-    sys.path.insert(0, str(aix_root))
-    monkeypatch.setenv("DRL_GRABBER_JOBS_ROOT", str(tmp_path / "mounted_grabber_jobs"))
-    from aix_web import create_app as create_aix_app
-
-    client = Client(create_aix_app(), Response)
-    response = client.get("/drl/")
-    assert response.status_code == 200
-    html = response.get_data(as_text=True)
-    assert "Grabber" in html
-
-
 def test_grabber_path_prefix_middleware_supports_prefixed_routes(tmp_path):
     import importlib.util
 

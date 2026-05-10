@@ -61,9 +61,9 @@ def ensure_lunar_runtime() -> None:
 
     Role
     ----
-    DRL is a sister app with heavier local dependencies than the AIX shell.
-    This guard centralizes the runtime gate so both the live-play page and the
-    training job stack fail with the same explicit message.
+    The Lunar stack has heavier local dependencies than the static catalog
+    pages. This guard centralizes the runtime gate so both the live-play page
+    and the training job stack fail with the same explicit message.
     """
 
     if gym is None:
@@ -255,11 +255,8 @@ class LunarSessionManager:
     environment lifecycle, session ids, checkpoint-backed controllers, and the
     rendered payload returned to the frontend after each step.
 
-    Cross-Repo Context
-    ------------------
-    AIX links to DRL as a sister app rather than embedding this runtime. The
-    session manager therefore remains a DRL-local concern even though AIX
-    documents and routes users toward it.
+    The session manager remains a DRL-local concern so live environment state
+    is owned by this app.
     """
 
     def __init__(self, *, checkpoint_loader: Callable[[str], LoadedCheckpoint | None]) -> None:

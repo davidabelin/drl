@@ -13,7 +13,6 @@ resources:
   disk_size_gb: 10
 
 env_variables:
-  AIX_HUB_URL: https://aix-labs.uw.r.appspot.com/
   DRL_LUNAR_JOBS_ROOT: /tmp/drl_lunar_jobs
   DRL_LUNAR_MAX_WORKERS: "1"
 
