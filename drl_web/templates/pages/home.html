@@ -15,6 +15,12 @@
       <a class="btn btn-secondary" href="{{ url_for('main.demo_page', slug='foundations') }}">Try Foundations Demo</a>
       <a class="btn btn-secondary" href="{{ url_for('main.lunar_page') }}">Open Lunar Lander</a>
       <a class="btn btn-secondary" href="{{ url_for('main.grabber_page') }}">Open Grabber</a>
+      {% if rps_url %}
+      <a class="btn btn-secondary" href="{{ rps_url }}" target="_blank" rel="noopener">Open RPS</a>
+      {% endif %}
+      {% if c4_url %}
+      <a class="btn btn-secondary" href="{{ c4_url }}" target="_blank" rel="noopener">Open Connect4</a>
+      {% endif %}
     </div>
     <button class="welcome-button" type="button" data-welcome-open aria-haspopup="dialog" aria-controls="welcome-banner">
       <span>Mom and Joe!</span>

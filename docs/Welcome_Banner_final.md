@@ -4,9 +4,11 @@
 
 ### A mashup of introductory things **mind** and **machine** have to say about this
 
-- This is a small throw-away "preservation project" / "classwork dump" from one of the classes I was taking five years or so ago. This is a record of a tiny fraction of the **ancient history** of what I do. It really is not worth tryiing to criticize: it just doesn't matter. What does matter to me, what I spend my time on *now*, is exponentially beyond the still relevent and truly amazing things you'll find here.
+- This is a small throw-away "preservation project" / "classwork dump" from one of the classes I was taking five years or so ago. This is a record of a tiny fraction of the **ancient history** of what I do. It really is not worth tryiing to criticize: it just doesn't matter.
+  - What does matter to me, what I spend my time on *now*, is exponentially beyond what you'll find here, even as still-relevent and truly amazing it remains!
 - I'm doing it this way for a reason. I want you to be able to let go of your knee-jerk reactions and see how much more *value* you can find to genuinely share with me for once -- as a gift, as a Mother's Day gift from *me* to *you*. 
   - The value for you to discover here isn't for me, I already have it; it's for you.
+- You'll be drawn to `Finance` like bees to pollen I know, but I'll have to clean that up for you tomorrow, I'm running out of time today.
 
 ### A mashup of orientation things to say...
 

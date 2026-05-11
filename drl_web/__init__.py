@@ -58,6 +58,8 @@ def create_app(config: dict | None = None) -> Flask:
         DRL_GRABBER_RUNTIME_PYTHON=str(os.getenv("DRL_GRABBER_RUNTIME_PYTHON", sys.executable)),
         DRL_GRABBER_MAX_WORKERS=max(1, int(os.getenv("DRL_GRABBER_MAX_WORKERS", "1"))),
         DRL_WELCOME_BANNER_PATH=str(root / "docs" / "Welcome_Banner_final.md"),
+        DRL_RPS_URL=os.getenv("DRL_RPS_URL", "http://127.0.0.1:5103/"),
+        DRL_C4_URL=os.getenv("DRL_C4_URL", "http://127.0.0.1:5104/"),
     )
     if config:
         app.config.update(config)
@@ -140,6 +142,8 @@ def create_app(config: dict | None = None) -> Flask:
             "app_title": app.config["DRL_APP_TITLE"],
             "lunar_runtime": lunar_runtime,
             "grabber_runtime": grabber_runtime,
+            "rps_url": str(app.config.get("DRL_RPS_URL", "")).strip(),
+            "c4_url": str(app.config.get("DRL_C4_URL", "")).strip(),
         }
 
     app.register_blueprint(main_bp)

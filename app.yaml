@@ -15,5 +15,7 @@ resources:
 env_variables:
   DRL_LUNAR_JOBS_ROOT: /tmp/drl_lunar_jobs
   DRL_LUNAR_MAX_WORKERS: "1"
+  DRL_RPS_URL: https://rps-dot-deeprl-031026.wm.r.appspot.com/
+  DRL_C4_URL: https://c4-dot-deeprl-031026.wm.r.appspot.com/
 
 service_account: administrator@deeprl-031026.iam.gserviceaccount.com
