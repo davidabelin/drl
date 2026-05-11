@@ -70,8 +70,16 @@ def test_home_links_to_standalone_sister_labs():
     response = client.get("/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
-    assert "Open RPS" in html
+    assert ">RPS</a>" in html
+    assert ">C4</a>" in html
+    assert 'class="hero-lab-dock"' in html
+    assert 'class="lab-orb-button lab-orb-green"' in html
+    assert 'class="lab-orb-button lab-orb-blue"' in html
+    assert "<span>Open</span>" in html
+    assert "<span>Lunar Lander</span>" in html
+    assert "<span>Grabber</span>" in html
+    assert "<span>RPS</span>" in html
     assert "https://rps.example.test/" in html
-    assert "Open Connect4" in html
+    assert "<span>Connect4</span>" in html
     assert "https://c4.example.test/" in html
     assert 'target="_blank"' in html

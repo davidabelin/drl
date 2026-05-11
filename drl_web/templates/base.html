@@ -23,6 +23,12 @@
         <a href="{{ url_for('main.inventory_page') }}">Inventory</a>
         <a href="{{ url_for('main.lunar_page') }}">Lunar</a>
         <a href="{{ url_for('main.grabber_page') }}">Grabber</a>
+        {% if rps_url %}
+        <a href="{{ rps_url }}" target="_blank" rel="noopener">RPS</a>
+        {% endif %}
+        {% if c4_url %}
+        <a href="{{ c4_url }}" target="_blank" rel="noopener">C4</a>
+        {% endif %}
         {% for section in catalog_sections %}
         <a href="{{ url_for('main.section_page', slug=section.slug) }}">{{ section.nav_label }}</a>
         {% endfor %}

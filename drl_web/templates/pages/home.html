@@ -13,19 +13,7 @@
       <a class="btn btn-primary" href="{{ url_for('main.inventory_page') }}">Browse Inventory</a>
       <a class="btn btn-secondary" href="{{ url_for('main.demo_page', slug='finance') }}">Try Finance Demo</a>
       <a class="btn btn-secondary" href="{{ url_for('main.demo_page', slug='foundations') }}">Try Foundations Demo</a>
-      <a class="btn btn-secondary" href="{{ url_for('main.lunar_page') }}">Open Lunar Lander</a>
-      <a class="btn btn-secondary" href="{{ url_for('main.grabber_page') }}">Open Grabber</a>
-      {% if rps_url %}
-      <a class="btn btn-secondary" href="{{ rps_url }}" target="_blank" rel="noopener">Open RPS</a>
-      {% endif %}
-      {% if c4_url %}
-      <a class="btn btn-secondary" href="{{ c4_url }}" target="_blank" rel="noopener">Open Connect4</a>
-      {% endif %}
     </div>
-    <button class="welcome-button" type="button" data-welcome-open aria-haspopup="dialog" aria-controls="welcome-banner">
-      <span>Mom and Joe!</span>
-      <span>Hit me!</span>
-    </button>
   </div>
   <aside class="hero-panel">
     <div class="metric-grid">
@@ -48,6 +36,38 @@
     </div>
     <p class="panel-note">{{ inventory.overview.filtered_scan }}</p>
   </aside>
+  <div class="hero-lab-dock" aria-label="Featured lab shortcuts">
+    <button class="lab-orb-button lab-orb-red welcome-button" type="button" data-welcome-open aria-haspopup="dialog" aria-controls="welcome-banner">
+      <span>Mom and Joe!</span>
+      <span>Hit me!</span>
+    </button>
+    <div class="hero-dock-cluster hero-dock-cluster-green">
+      <a class="lab-orb-button lab-orb-green" href="{{ url_for('main.lunar_page') }}">
+        <span>Open</span>
+        <span>Lunar Lander</span>
+      </a>
+      <a class="lab-orb-button lab-orb-green" href="{{ url_for('main.grabber_page') }}">
+        <span>Open</span>
+        <span>Grabber</span>
+      </a>
+    </div>
+    {% if rps_url or c4_url %}
+    <div class="hero-dock-cluster hero-dock-cluster-blue">
+      {% if rps_url %}
+      <a class="lab-orb-button lab-orb-blue" href="{{ rps_url }}" target="_blank" rel="noopener">
+        <span>Open</span>
+        <span>RPS</span>
+      </a>
+      {% endif %}
+      {% if c4_url %}
+      <a class="lab-orb-button lab-orb-blue" href="{{ c4_url }}" target="_blank" rel="noopener">
+        <span>Open</span>
+        <span>Connect4</span>
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
 </section>
 
 <div class="welcome-overlay" data-welcome-overlay hidden>
