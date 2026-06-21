@@ -12,12 +12,12 @@ pushd "%REPO_DIR%" >nul 2>&1
 if errorlevel 1 goto :fail
 set "SOURCE_DIR=%CD%"
 
-rem This is the older Cloud Run deploy path kept for the legacy public URL and comparisons.
 echo.
 echo ==== DRL Cloud Run Publish ====
 echo Project : %PROJECT_ID%
 echo Region  : %REGION%
 echo Service : %SERVICE_NAME%
+echo URL     : %CANONICAL_DRL_URL%
 echo Source  : %SOURCE_DIR%
 echo Memory  : %RUN_MEMORY%
 echo CPU     : %RUN_CPU%
@@ -48,17 +48,17 @@ exit /b 1
 
 :help
 echo.
-echo DRL Legacy Cloud Run Publish
+echo DRL Cloud Run Publish
 echo.
 echo Usage:
 echo   scripts\drl_legacy_cloudrun_publish.bat
 echo.
 echo What it does:
-echo   Builds and deploys this repo to the older public Cloud Run service, currently drl-web.
+echo   Builds and deploys this repo to the canonical public Cloud Run service, currently drl-web.
 echo.
 echo When to use it:
-echo   - Only when you intentionally want to refresh or compare against the legacy Cloud Run host.
-echo   - Not for the canonical DRL deploy; use scripts\drl_appengine_publish.bat for that.
+echo   - For the normal DRL web deploy.
+echo   - After changing app code, static assets, or Cloud Run runtime config.
 echo.
 echo Prerequisites:
 echo   - scripts\drl_cloud_configure.bat has been run in the current environment

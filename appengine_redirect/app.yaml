@@ -1,0 +1,12 @@
+runtime: python313
+entrypoint: gunicorn -b :$PORT main:app
+instance_class: F1
+
+automatic_scaling:
+  min_instances: 0
+  max_instances: 1
+
+env_variables:
+  DRL_REDIRECT_TARGET: https://drl-web-x2ulcmhaiq-wm.a.run.app
+
+service_account: administrator@deeprl-031026.iam.gserviceaccount.com

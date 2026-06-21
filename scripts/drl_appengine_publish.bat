@@ -14,10 +14,11 @@ pushd "%REPO_DIR%" >nul 2>&1
 if errorlevel 1 goto :fail
 
 echo.
-echo ==== DRL App Engine Publish ====
+echo ==== DRL App Engine Redirect Publish ====
 echo Project : %PROJECT_ID%
 echo Region  : %APP_ENGINE_LOCATION%
-echo URL     : %CANONICAL_DRL_URL%
+echo Alias   : %LEGACY_DRL_URL%
+echo Target  : %CANONICAL_DRL_URL%
 echo Script  : %~f0
 echo Repo Dir: %CD%
 
@@ -47,10 +48,10 @@ if errorlevel 1 (
 )
 
 echo.
-set "FAILED_STEP=publish app.yaml to App Engine"
-set "FAILED_COMMAND=gcloud app deploy app.yaml --project=""%PROJECT_ID%"" --quiet"
-echo ^> gcloud app deploy app.yaml --project="%PROJECT_ID%" --quiet
-call gcloud app deploy app.yaml --project="%PROJECT_ID%" --quiet
+set "FAILED_STEP=publish App Engine redirect alias"
+set "FAILED_COMMAND=gcloud app deploy appengine_redirect\\app.yaml --project=""%PROJECT_ID%"" --quiet"
+echo ^> gcloud app deploy appengine_redirect\app.yaml --project="%PROJECT_ID%" --quiet
+call gcloud app deploy appengine_redirect\app.yaml --project="%PROJECT_ID%" --quiet
 if errorlevel 1 goto :fail_popd
 
 echo.
@@ -68,7 +69,7 @@ call gcloud app versions list --project="%PROJECT_ID%"
 if errorlevel 1 goto :fail_popd
 
 echo.
-echo [OK] Canonical App Engine publish finished.
+echo [OK] App Engine redirect alias publish finished.
 popd >nul
 endlocal
 exit /b 0
@@ -83,7 +84,7 @@ set "FAILED_CODE=%errorlevel%"
 
 :fail_report
 echo.
-echo [ERROR] App Engine publish failed.
+echo [ERROR] App Engine redirect publish failed.
 echo [ERROR] Step   : %FAILED_STEP%
 echo [ERROR] Command: %FAILED_COMMAND%
 echo [ERROR] Exit   : %FAILED_CODE%
@@ -99,22 +100,23 @@ exit /b %FAILED_CODE%
 
 :help
 echo.
-echo DRL App Engine Publish
+echo DRL App Engine Redirect Publish
 echo.
 echo Usage:
 echo   scripts\drl_appengine_publish.bat
 echo.
 echo What it does:
-echo   Deploys app.yaml to the canonical App Engine service for this repo, creating the
-echo   App Engine application first if it does not already exist.
+echo   Deploys the lightweight App Engine standard redirect alias that forwards the old
+echo   *.r.appspot.com host to the canonical Cloud Run service.
 echo.
 echo When to use it:
-echo   - For the current canonical DRL web deploy.
-echo   - After changing app code, static assets, or app.yaml for the App Engine target.
+echo   - After changing the canonical Cloud Run URL.
+echo   - When you want the legacy App Engine hostname to stay alive without Flex costs.
 echo.
 echo Recommended order:
 echo   1. scripts\drl_cloud_configure.bat
 echo   2. scripts\drl_legacy_cloud_setup.bat
-echo   3. scripts\drl_appengine_publish.bat
-echo   4. scripts\drl_cloud_status.bat
+echo   3. scripts\drl_legacy_cloudrun_publish.bat
+echo   4. scripts\drl_appengine_publish.bat
+echo   5. scripts\drl_cloud_status.bat
 exit /b 0

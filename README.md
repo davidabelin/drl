@@ -4,15 +4,15 @@ Standalone Deep RL Lab web application.
 
 ## Canonical Publish
 
-The canonical public DRL host is the standalone App Engine app in project
+The canonical public DRL host is the Cloud Run service in project
 `deeprl-031026`:
 
-- `https://deeprl-031026.wm.r.appspot.com`
+- `https://drl-web-x2ulcmhaiq-wm.a.run.app`
 
 Normal publish command:
 
 ```bat
-scripts\drl_appengine_publish.bat
+scripts\drl_legacy_cloudrun_publish.bat
 ```
 
 Occasional support commands:
@@ -23,6 +23,7 @@ scripts\drl_cloud_configure.bat
 scripts\drl_legacy_cloud_setup.bat
 ```
 
-Legacy fallback publish path:
+Legacy compatibility alias publish:
 
-- `scripts\drl_legacy_cloudrun_publish.bat`
+- `scripts\drl_appengine_publish.bat`
+- `https://deeprl-031026.wm.r.appspot.com`

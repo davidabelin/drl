@@ -21,29 +21,33 @@ if not exist "%RPS_ROOT%\app.drl.yaml" goto :missing_rps
 if not exist "%C4_ROOT%\app.drl.yaml" goto :missing_c4
 
 echo.
-echo [1/3] Deploying RPS standalone service...
+echo [1/4] Deploying RPS standalone service...
 pushd "%RPS_ROOT%" >nul || goto :fail
 call gcloud app deploy app.drl.yaml --project="%PROJECT_ID%" --quiet
 if errorlevel 1 goto :fail_popd
 popd >nul
 
 echo.
-echo [2/3] Deploying Connect4 standalone service...
+echo [2/4] Deploying Connect4 standalone service...
 pushd "%C4_ROOT%" >nul || goto :fail
 call gcloud app deploy app.drl.yaml --project="%PROJECT_ID%" --quiet
 if errorlevel 1 goto :fail_popd
 popd >nul
 
 echo.
-echo [3/3] Deploying DRL default service...
-pushd "%DRL_ROOT%" >nul || goto :fail
-call gcloud app deploy app.yaml --project="%PROJECT_ID%" --quiet
-if errorlevel 1 goto :fail_popd
-popd >nul
+echo [3/4] Deploying DRL Cloud Run service...
+call "%~dp0drl_legacy_cloudrun_publish.bat"
+if errorlevel 1 goto :fail
+
+echo.
+echo [4/4] Refreshing DRL App Engine redirect alias...
+call "%~dp0drl_appengine_publish.bat"
+if errorlevel 1 goto :fail
 
 echo.
 echo [OK] DRL and sister lab publish finished.
-echo DRL      https://deeprl-031026.wm.r.appspot.com/
+echo DRL      https://drl-web-x2ulcmhaiq-wm.a.run.app/
+echo Alias    https://deeprl-031026.wm.r.appspot.com/
 echo RPS      https://rps-dot-deeprl-031026.wm.r.appspot.com/
 echo Connect4 https://c4-dot-deeprl-031026.wm.r.appspot.com/
 endlocal
@@ -80,7 +84,7 @@ echo   scripts\drl_publish_with_sister_labs.bat
 echo.
 echo What it does:
 echo   Deploys the standalone RPS and Connect4 App Engine services from sibling
-echo   repos, then deploys DRL with buttons pointing to those service URLs.
+echo   repos, then deploys DRL to Cloud Run and refreshes the App Engine redirect alias.
 echo.
 echo Recommended order:
 echo   1. scripts\drl_cloud_configure.bat

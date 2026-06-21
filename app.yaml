@@ -1,3 +1,5 @@
+# Legacy App Engine flexible config kept only for manual rollback scenarios.
+# Do not use this for normal DRL hosting; Cloud Run is the canonical runtime.
 runtime: custom
 env: flex
 
