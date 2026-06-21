@@ -20,14 +20,14 @@ from PIL import Image
 try:  # pragma: no cover - exercised indirectly in API tests
     import gymnasium as gym
     from gymnasium.envs.box2d import lunar_lander as lunar_lander_module
-except ModuleNotFoundError:  # pragma: no cover
+except (ModuleNotFoundError, ImportError):  # pragma: no cover
     gym = None
     lunar_lander_module = None
 
 try:  # pragma: no cover - exercised indirectly in API tests
     import torch
     import torch.nn as nn
-except ModuleNotFoundError:  # pragma: no cover
+except (ModuleNotFoundError, ImportError):  # pragma: no cover
     torch = None
     nn = None
 
