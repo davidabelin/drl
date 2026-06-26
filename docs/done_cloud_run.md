@@ -1,12 +1,11 @@
 # **DONE WITH THIS** (3/22/2026)
 # DRL Cloud Run Console Notes
 
-Legacy note: Cloud Run is no longer the canonical public DRL host. The quick
-deploy path now targets App Engine flexible so DRL has a cleaner standalone
-Google-managed URL. Keep this document only for the fallback/legacy Cloud Run
-path.
+Current note: Cloud Run is the canonical public DRL runtime. The App Engine
+hostname remains only as a low-cost App Engine Standard redirect alias. Keep
+this document as the Cloud Run deployment rationale and setup note.
 
-## Why this app is better on Cloud Run than App Engine standard
+## Why this app runs on Cloud Run
 
 The DRL lab now includes:
 
@@ -15,7 +14,10 @@ The DRL lab now includes:
 - `box2d-py`
 - `torch`
 
-That stack is much more comfortable in a containerized deploy path than in a lighter App Engine standard configuration. The repo now includes a production container in [Dockerfile](../Dockerfile) plus prefix-aware routing in [run.py](../run.py), so the same app can run:
+That stack is more comfortable in a containerized deploy path than in the
+lightweight App Engine Standard alias. The repo includes a production container
+in [Dockerfile](../Dockerfile) plus prefix-aware routing in [run.py](../run.py),
+so the same app can run:
 
 - as a standalone service at `/`
 - behind a path prefix such as `/drl`
@@ -28,9 +30,9 @@ That stack is much more comfortable in a containerized deploy path than in a lig
 - `run.py` supports `APP_BASE_PATH` so the app can live at `/` or `/drl` without changing routes.
 - `DRL_LUNAR_JOBS_ROOT` defaults to `/tmp/drl_lunar_jobs` in the container.
 
-## Recommended first deploy shape
+## Recommended deploy shape
 
-Use Cloud Run for the first standalone online DRL deployment.
+Use Cloud Run for the standalone online DRL deployment.
 
 Recommended initial environment variables:
 
@@ -55,7 +57,7 @@ That means a pure click-only upload of this local folder is not the normal curre
 
 ## First walkthrough step
 
-When you are ready, start in the Google Cloud Console with:
+When a new project needs the same setup, start in the Google Cloud Console with:
 
 1. Create or select the new DRL project.
 2. Verify billing is enabled for that project.

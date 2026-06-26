@@ -51,7 +51,7 @@ echo.
 echo DRL Cloud Run Publish
 echo.
 echo Usage:
-echo   scripts\drl_legacy_cloudrun_publish.bat
+echo   scripts\drl_cloudrun_publish.bat
 echo.
 echo What it does:
 echo   Builds and deploys this repo to the canonical public Cloud Run service, currently drl-web.
@@ -62,5 +62,5 @@ echo   - After changing app code, static assets, or Cloud Run runtime config.
 echo.
 echo Prerequisites:
 echo   - scripts\drl_cloud_configure.bat has been run in the current environment
-echo   - Required APIs and resources already exist, usually via scripts\drl_legacy_cloud_setup.bat
+echo   - Required APIs and resources already exist, usually via scripts\drl_cloud_setup.bat
 exit /b 0

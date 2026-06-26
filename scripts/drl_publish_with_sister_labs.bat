@@ -36,11 +36,11 @@ popd >nul
 
 echo.
 echo [3/4] Deploying DRL Cloud Run service...
-call "%~dp0drl_legacy_cloudrun_publish.bat"
+call "%~dp0drl_cloudrun_publish.bat"
 if errorlevel 1 goto :fail
 
 echo.
-echo [4/4] Refreshing DRL App Engine redirect alias...
+echo [4/4] Refreshing DRL App Engine Standard appspot alias...
 call "%~dp0drl_appengine_publish.bat"
 if errorlevel 1 goto :fail
 
@@ -84,7 +84,7 @@ echo   scripts\drl_publish_with_sister_labs.bat
 echo.
 echo What it does:
 echo   Deploys the standalone RPS and Connect4 App Engine services from sibling
-echo   repos, then deploys DRL to Cloud Run and refreshes the App Engine redirect alias.
+echo   repos, then deploys DRL to Cloud Run and refreshes the App Engine Standard alias.
 echo.
 echo Recommended order:
 echo   1. scripts\drl_cloud_configure.bat

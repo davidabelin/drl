@@ -14,10 +14,10 @@ pushd "%REPO_DIR%" >nul 2>&1
 if errorlevel 1 goto :fail
 
 echo.
-echo ==== DRL App Engine Redirect Publish ====
+echo ==== DRL App Engine Standard Alias Publish ====
 echo Project : %PROJECT_ID%
 echo Region  : %APP_ENGINE_LOCATION%
-echo Alias   : %LEGACY_DRL_URL%
+echo Alias   : %APPSPOT_ALIAS_URL%
 echo Target  : %CANONICAL_DRL_URL%
 echo Script  : %~f0
 echo Repo Dir: %CD%
@@ -48,7 +48,7 @@ if errorlevel 1 (
 )
 
 echo.
-set "FAILED_STEP=publish App Engine redirect alias"
+set "FAILED_STEP=publish App Engine Standard redirect alias"
 set "FAILED_COMMAND=gcloud app deploy appengine_redirect\\app.yaml --project=""%PROJECT_ID%"" --quiet"
 echo ^> gcloud app deploy appengine_redirect\app.yaml --project="%PROJECT_ID%" --quiet
 call gcloud app deploy appengine_redirect\app.yaml --project="%PROJECT_ID%" --quiet
@@ -69,7 +69,7 @@ call gcloud app versions list --project="%PROJECT_ID%"
 if errorlevel 1 goto :fail_popd
 
 echo.
-echo [OK] App Engine redirect alias publish finished.
+echo [OK] App Engine Standard alias publish finished.
 popd >nul
 endlocal
 exit /b 0
@@ -84,14 +84,14 @@ set "FAILED_CODE=%errorlevel%"
 
 :fail_report
 echo.
-echo [ERROR] App Engine redirect publish failed.
+echo [ERROR] App Engine Standard alias publish failed.
 echo [ERROR] Step   : %FAILED_STEP%
 echo [ERROR] Command: %FAILED_COMMAND%
 echo [ERROR] Exit   : %FAILED_CODE%
 echo.
 echo Suggested next checks:
 echo   1. Run scripts\drl_cloud_configure.bat
-echo   2. Run scripts\drl_legacy_cloud_setup.bat
+echo   2. Run scripts\drl_cloud_setup.bat
 echo   3. Run scripts\drl_cloud_status.bat
 echo   4. Verify billing, enabled APIs, and App Engine permissions in %PROJECT_ID%
 echo   5. Re-run the command above manually if you need the full gcloud error in isolation
@@ -100,23 +100,23 @@ exit /b %FAILED_CODE%
 
 :help
 echo.
-echo DRL App Engine Redirect Publish
+echo DRL App Engine Standard Alias Publish
 echo.
 echo Usage:
 echo   scripts\drl_appengine_publish.bat
 echo.
 echo What it does:
-echo   Deploys the lightweight App Engine standard redirect alias that forwards the old
-echo   *.r.appspot.com host to the canonical Cloud Run service.
+echo   Deploys the lightweight App Engine Standard F1 redirect alias that forwards
+echo   deeprl-031026.wm.r.appspot.com to the canonical Cloud Run service.
 echo.
 echo When to use it:
 echo   - After changing the canonical Cloud Run URL.
-echo   - When you want the legacy App Engine hostname to stay alive without Flex costs.
+echo   - When you want the appspot hostname to stay alive as a low-cost alias.
 echo.
 echo Recommended order:
 echo   1. scripts\drl_cloud_configure.bat
-echo   2. scripts\drl_legacy_cloud_setup.bat
-echo   3. scripts\drl_legacy_cloudrun_publish.bat
+echo   2. scripts\drl_cloud_setup.bat
+echo   3. scripts\drl_cloudrun_publish.bat
 echo   4. scripts\drl_appengine_publish.bat
 echo   5. scripts\drl_cloud_status.bat
 exit /b 0

@@ -35,14 +35,6 @@ echo ^> gcloud config set artifacts/location %REGION%
 call gcloud config set artifacts/location %REGION%
 if errorlevel 1 goto :fail
 echo.
-echo ^> gcloud config set compute/region %REGION%
-call gcloud config set compute/region %REGION%
-if errorlevel 1 goto :fail
-echo.
-echo ^> gcloud config set compute/zone %ZONE%
-call gcloud config set compute/zone %ZONE%
-if errorlevel 1 goto :fail
-echo.
 echo ^> gcloud config list
 call gcloud config list
 if errorlevel 1 goto :fail
@@ -67,7 +59,7 @@ echo   scripts\drl_cloud_configure.bat
 echo.
 echo What it does:
 echo   Activates the DRL service account key configured for this repo and sets the active
-echo   gcloud account, project, Cloud Run region, Artifact Registry location, and compute region/zone.
+echo   gcloud account, project, Cloud Run region, and Artifact Registry location.
 echo.
 echo When to use it:
 echo   - At the start of a new shell session.

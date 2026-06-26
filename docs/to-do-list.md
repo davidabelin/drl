@@ -3,7 +3,7 @@
 Status refresh: 2026-03-25
 
 ## Quick and Easy
-- [ ] Retire or redirect the legacy Cloud Run URL if it is no longer intended to be public.
+- [ ] Decide whether the App Engine Standard appspot alias should remain public or be retired.
 - [] Plan in `docs\LUNAR_PLAN_beta.md` for machine continuous control.
 - [x] Highlight the ML-chosen path in `/foundations` Frozen Lake.
 - [x] Improve the `/finance` explanations so they relate more clearly to finance and to what the ML is doing.
@@ -15,7 +15,7 @@ Status refresh: 2026-03-25
   - Current assessment: no safe deletions yet; each current `.bat` file still has a distinct role or is referenced by docs/scripts.
 
 ## Long and Hard
-- [ ] Retrieve and use the data collected from gameplay at the older legacy URL.
+- [ ] Retrieve and use any gameplay data collected through the appspot alias before retiring it.
 - [ ] If Lunar playback still feels too slow, reduce per-step round-trip cost or move live session state to a shared backend.
 - [ ] Build human continuous control for Lunar Lander.
 - [ ] Implement machine continuous control for Lunar Lander.
@@ -25,23 +25,24 @@ Status refresh: 2026-03-25
 - [ ] Implement the turn-based multi-agent RL demo.
 - [ ] Condense the scripts into 4 regular-use files.
 
-## Legacy Cloud Run Host
-- [x] Replace the ugly generated DRL URL as the canonical entry point.
-  - Current canonical DRL URL is `https://deeprl-031026.wm.r.appspot.com/`
-- [ ] Retire or redirect the legacy Cloud Run URL if it is no longer intended to be public.
-  - It still responds, so this is now a deployment/cloud cleanup item rather than a code item.
-  - This still needs an explicit choice about whether the old URL should hard-redirect, serve a retirement notice, or be made private.
-  - [ ] Retrieve and use the data collected from gameplay at the older "ugly" location
+## Canonical Cloud Run Host
+- [x] Keep Cloud Run as the canonical entry point.
+  - Current canonical DRL URL is `https://drl-web-x2ulcmhaiq-wm.a.run.app/`
+  - App Engine Standard alias: `https://deeprl-031026.wm.r.appspot.com/`
+- [x] Remove the old root App Engine runtime deployment path from the repo.
+- [ ] Retire the App Engine Standard alias if it is no longer useful.
+  - It currently responds as a low-cost redirect to Cloud Run.
+  - This still needs an explicit choice about whether the alias should remain, serve a retirement notice, or be made private.
+  - [ ] Retrieve and use the data collected from gameplay at the appspot alias
 
 ## Lunar Lander
-- [x] Fix the App Engine lunar live-play regression.
-  - Symptom: the canonical App Engine host is slower/clunkier than Cloud Run and intermittently returns `session was not found` during both Human Play and Machine Play.
+- [x] Avoid the old App Engine runtime live-play regression by keeping DRL on Cloud Run.
+  - Symptom from the retired App Engine runtime path: slower/clunkier playback and intermittent `session was not found` during both Human Play and Machine Play.
   - [x] Examine.
   - [x] Discuss.
   - [x] Confirm the repo stores live Lunar sessions in process-local memory (`LunarSessionManager._sessions`), so requests that land on a different App Engine instance cannot see the same session.
-  - [x] Confirm the current public App Engine host reproduces the issue, while the legacy Cloud Run hosts do not.
-  - [x] Commit the first App Engine mitigation in `app.yaml`: enable session affinity, pin the service to one instance, and request more realistic CPU/RAM for the Gym/Torch runtime.
-  - [x] Redeploy App Engine and verify Human Play and Machine Play both stay on one session without intermittent 404s.
+  - [x] Confirm Cloud Run does not reproduce the old App Engine runtime issue.
+  - [x] Remove the App Engine runtime path instead of preserving the mitigation.
   - [_] If playback still feels too slow after the session fix, reduce per-step round-trip cost or move live session state to a shared backend.
 - [] **Continuous control**
   - [] human cc first
@@ -75,7 +76,7 @@ Status refresh: 2026-03-25
 ## Scripts
 - [x] Intro and in-line documentation for each script file
 - [] Hard-delete any scripts\*.bat no longer needed
-  - current assessment: no safe deletions yet; revisit after the legacy Cloud Run decision
+  - current assessment: no safe deletions yet; revisit after the App Engine Standard alias decision
 - [] condense everything into 4 regular-use files, to: set env, show status, configure drl env, deploy drl web app
 
 ## Reacher-like lab: self-play learning example
