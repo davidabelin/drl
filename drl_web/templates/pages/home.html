@@ -37,10 +37,6 @@
     <p class="panel-note">{{ inventory.overview.filtered_scan }}</p>
   </aside>
   <div class="hero-lab-dock" aria-label="Featured lab shortcuts">
-    <button class="lab-orb-button lab-orb-red welcome-button" type="button" data-welcome-open aria-haspopup="dialog" aria-controls="welcome-banner">
-      <span>Mom and Joe!</span>
-      <span>Hit me!</span>
-    </button>
     <div class="hero-dock-cluster hero-dock-cluster-green">
       <a class="lab-orb-button lab-orb-green" href="{{ url_for('main.lunar_page') }}">
         <span>Open</span>
@@ -69,22 +65,6 @@
     {% endif %}
   </div>
 </section>
-
-<div class="welcome-overlay" data-welcome-overlay hidden>
-  <section
-    class="welcome-panel"
-    id="welcome-banner"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Welcome Banner"
-    tabindex="-1"
-  >
-    <button class="welcome-close" type="button" data-welcome-close aria-label="Close welcome message">Close</button>
-    <div class="welcome-markdown">
-      {{ welcome_banner.html|safe }}
-    </div>
-  </section>
-</div>
 
 {% if demo_sections %}
 <section class="section-block">
@@ -173,7 +153,4 @@
     {% endfor %}
   </div>
 </section>
-{% endblock %}
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/welcome_banner.js') }}" defer></script>
 {% endblock %}

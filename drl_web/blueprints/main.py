@@ -66,12 +66,6 @@ def _inventory():
     return current_app.extensions["drl_inventory"]
 
 
-def _welcome_banner():
-    """Return the rendered welcome banner content."""
-
-    return current_app.extensions["drl_welcome_banner"]
-
-
 def _lunar_jobs():
     """Return the local Lunar job manager, if the runtime is available."""
 
@@ -280,7 +274,6 @@ def home() -> str:
         featured_sections=featured,
         demo_sections=demo_sections,
         inventory=inventory,
-        welcome_banner=_welcome_banner(),
     )
 
 

@@ -25,39 +25,6 @@ def test_base_chrome_is_drl_only(path: str):
     assert "2026 DRL Lab" in html
 
 
-def test_home_includes_welcome_banner_trigger_and_panel(tmp_path):
-    welcome_path = tmp_path / "welcome.md"
-    welcome_path.write_text(
-        """# Welcome Banner
-
-## Hello, Mom and Joe!
-
-### A mashup of introductory things **mind** and **machine** have to say about this
-
-- One line with `Codex v5.5`.
-
-The resulting live and interactive web app implementation is here.
-""",
-        encoding="utf-8",
-    )
-    app = create_app({"TESTING": True, "DRL_WELCOME_BANNER_PATH": str(welcome_path)})
-    client = app.test_client()
-    response = client.get("/")
-    assert response.status_code == 200
-    html = response.get_data(as_text=True)
-    assert "Mom and Joe!" in html
-    assert "Hit me!" in html
-    assert 'id="welcome-banner"' in html
-    assert 'data-welcome-overlay hidden' in html
-    assert "<h1>Welcome Banner</h1>" in html
-    assert "<h2>Hello, Mom and Joe!</h2>" in html
-    assert "A mashup of introductory things" in html
-    assert "<strong>mind</strong>" in html
-    assert "<code>Codex v5.5</code>" in html
-    assert "The resulting live and interactive web app implementation" in html
-    assert "js/welcome_banner.js" in html
-
-
 def test_home_links_to_standalone_sister_labs():
     app = create_app(
         {
@@ -83,3 +50,14 @@ def test_home_links_to_standalone_sister_labs():
     assert "<span>Connect4</span>" in html
     assert "https://c4.example.test/" in html
     assert 'target="_blank"' in html
+
+
+def test_sister_lab_defaults_are_public_not_loopback(monkeypatch):
+    monkeypatch.delenv("DRL_RPS_URL", raising=False)
+    monkeypatch.delenv("DRL_C4_URL", raising=False)
+    app = create_app({"TESTING": True})
+    html = app.test_client().get("/").get_data(as_text=True)
+    for forbidden in ("127.0.0.1", "localhost", ":5103", ":5104"):
+        assert forbidden not in html
+    assert "https://rps-dot-deeprl-031026.wm.r.appspot.com/" in html
+    assert "https://c4-dot-deeprl-031026.wm.r.appspot.com/" in html

@@ -30,3 +30,14 @@ Low-cost appspot alias publish:
 
 The appspot URL is an App Engine Standard F1 redirect alias. It is not the DRL
 runtime.
+
+## Sister Labs
+
+The home page and nav link out to the standalone RPS and Connect4 labs. The
+defaults in `drl_web/__init__.py` point at the public App Engine services and
+can be overridden with `DRL_RPS_URL` and `DRL_C4_URL`:
+
+- `https://rps-dot-deeprl-031026.wm.r.appspot.com/`
+- `https://c4-dot-deeprl-031026.wm.r.appspot.com/`
+
+Deploy both plus DRL with `scripts\drl_publish_with_sister_labs.bat`.
